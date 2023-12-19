@@ -1,0 +1,12 @@
+{
+  "collectionName": "components_related_ids_related_ids",
+  "info": {
+    "displayName": "related_ids"
+  },
+  "options": {},
+  "attributes": {
+    "id_related": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "kind": "collectionType",
+  "collectionName": "apportionments",
+  "info": {
+    "singularName": "apportionment",
+    "pluralName": "apportionments",
+    "displayName": "Apportionment"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "rateio": {
+      "type": "string",
+      "unique": true
+    }
+  }
+}

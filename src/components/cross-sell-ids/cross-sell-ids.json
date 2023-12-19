@@ -1,0 +1,12 @@
+{
+  "collectionName": "components_cross_sell_ids_cross_sell_ids",
+  "info": {
+    "displayName": "cross_sell_ids"
+  },
+  "options": {},
+  "attributes": {
+    "id_cross_sell": {
+      "type": "string"
+    }
+  }
+}

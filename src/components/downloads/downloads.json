@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_downloads_downloads",
+  "info": {
+    "displayName": "downloads",
+    "icon": "arrowDown"
+  },
+  "options": {},
+  "attributes": {
+    "file_id": {
+      "type": "string"
+    }
+  }
+}

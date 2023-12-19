@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "support_materials",
+  "info": {
+    "singularName": "support-material",
+    "pluralName": "support-materials",
+    "displayName": "Support material",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "creativeName": {
+      "type": "string"
+    },
+    "media_id": {
+      "type": "string"
+    },
+    "media": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "collectionName": "components_default_attributes_default_attributes",
+  "info": {
+    "displayName": "default_attributes"
+  },
+  "options": {},
+  "attributes": {
+    "id_attribute": {
+      "type": "string"
+    }
+  }
+}

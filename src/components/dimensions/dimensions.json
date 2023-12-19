@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_dimensions_dimensions",
+  "info": {
+    "displayName": "dimensions"
+  },
+  "options": {},
+  "attributes": {
+    "length": {
+      "type": "float"
+    },
+    "width": {
+      "type": "float"
+    },
+    "height": {
+      "type": "float"
+    }
+  }
+}

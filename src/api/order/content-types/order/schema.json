@@ -1,0 +1,95 @@
+{
+  "kind": "collectionType",
+  "collectionName": "orders",
+  "info": {
+    "singularName": "order",
+    "pluralName": "orders",
+    "displayName": "Order",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "total": {
+      "type": "decimal"
+    },
+    "dataCompra": {
+      "type": "datetime"
+    },
+    "detalhes_pedidos": {
+      "type": "richtext"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "order_type": {
+      "type": "enumeration",
+      "enum": [
+        "simple",
+        "variation",
+        "affiliate",
+        "subscription",
+        "accession",
+        "course"
+      ]
+    },
+    "gateway_cobranca": {
+      "type": "json"
+    },
+    "paid": {
+      "type": "boolean"
+    },
+    "dataPagamento": {
+      "type": "datetime"
+    },
+    "modoPagamento": {
+      "type": "enumeration",
+      "enum": [
+        "saldo",
+        "bloqueado",
+        "pix"
+      ]
+    },
+    "gateway_webhook": {
+      "type": "json"
+    },
+    "pix_base64": {
+      "type": "json"
+    },
+    "rateios_admin": {
+      "type": "json"
+    },
+    "rateios_bonus": {
+      "type": "json"
+    },
+    "rateios_unilevel": {
+      "type": "json"
+    },
+    "product": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::product.product"
+    },
+    "plan_accession": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::plan.plan",
+      "inversedBy": "order_accession"
+    },
+    "plan_subscription": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::plan.plan",
+      "inversedBy": "orders_subscription"
+    },
+    "plan_patrocinador": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::plan.plan"
+    }
+  }
+}

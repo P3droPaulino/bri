@@ -1,0 +1,262 @@
+{
+  "kind": "collectionType",
+  "collectionName": "products",
+  "info": {
+    "singularName": "product",
+    "pluralName": "products",
+    "displayName": "Product",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "permalink": {
+      "type": "string"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "simple",
+        "variation",
+        "affiliate",
+        "subscription",
+        "accession",
+        "plan",
+        "course"
+      ]
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "publish",
+        "unpublish",
+        "future",
+        "draft",
+        "pending",
+        "private",
+        "trash",
+        "autodraft",
+        "inherit"
+      ]
+    },
+    "featured": {
+      "type": "boolean"
+    },
+    "catalog_visibility": {
+      "type": "enumeration",
+      "enum": [
+        "public",
+        "password",
+        "private"
+      ]
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "short_description": {
+      "type": "richtext"
+    },
+    "sku": {
+      "type": "string"
+    },
+    "price": {
+      "type": "decimal"
+    },
+    "regular_price": {
+      "type": "decimal"
+    },
+    "sale_price": {
+      "type": "decimal"
+    },
+    "date_on_sale_from": {
+      "type": "datetime"
+    },
+    "date_on_sale_to": {
+      "type": "datetime"
+    },
+    "price_html": {
+      "type": "richtext"
+    },
+    "on_sale": {
+      "type": "boolean"
+    },
+    "purchasable": {
+      "type": "boolean"
+    },
+    "total_sales": {
+      "type": "integer"
+    },
+    "virtual": {
+      "type": "boolean"
+    },
+    "downloadable": {
+      "type": "boolean"
+    },
+    "downloads": {
+      "displayName": "downloads",
+      "type": "component",
+      "repeatable": true,
+      "component": "downloads.downloads"
+    },
+    "download_limit": {
+      "type": "integer"
+    },
+    "download_expiry": {
+      "type": "integer"
+    },
+    "download_type": {
+      "type": "string"
+    },
+    "external_url": {
+      "type": "string"
+    },
+    "button_text": {
+      "type": "string"
+    },
+    "tax_status": {
+      "type": "string"
+    },
+    "tax_class": {
+      "type": "string"
+    },
+    "manage_stock": {
+      "type": "boolean"
+    },
+    "stock_quantity": {
+      "type": "integer"
+    },
+    "in_stock": {
+      "type": "boolean"
+    },
+    "backorders": {
+      "type": "boolean"
+    },
+    "backorders_allowed": {
+      "type": "boolean"
+    },
+    "sold_individually": {
+      "type": "boolean"
+    },
+    "dimensions": {
+      "displayName": "dimensions",
+      "type": "component",
+      "repeatable": false,
+      "component": "dimensions.dimensions"
+    },
+    "shipping_required": {
+      "type": "boolean"
+    },
+    "shipping_taxable": {
+      "type": "boolean"
+    },
+    "shipping_class": {
+      "type": "string"
+    },
+    "shipping_class_id": {
+      "type": "string"
+    },
+    "reviews_allowed": {
+      "type": "boolean"
+    },
+    "average_rating": {
+      "type": "decimal"
+    },
+    "rating_count": {
+      "type": "integer"
+    },
+    "related_ids": {
+      "displayName": "related_ids",
+      "type": "component",
+      "repeatable": true,
+      "component": "related-ids.related-ids"
+    },
+    "upsell_ids": {
+      "displayName": "upsell_ids",
+      "type": "component",
+      "repeatable": true,
+      "component": "upsell-ids.upsell-ids"
+    },
+    "cross_sell_ids": {
+      "displayName": "cross_sell_ids",
+      "type": "component",
+      "repeatable": true,
+      "component": "cross-sell-ids.cross-sell-ids"
+    },
+    "purchase_note": {
+      "type": "richtext"
+    },
+    "tags": {
+      "displayName": "tags",
+      "type": "component",
+      "repeatable": true,
+      "component": "tags.tags"
+    },
+    "attributes": {
+      "displayName": "attributes",
+      "type": "component",
+      "repeatable": true,
+      "component": "attributes.attributes"
+    },
+    "default_attributes": {
+      "displayName": "default_attributes",
+      "type": "component",
+      "repeatable": true,
+      "component": "default-attributes.default-attributes"
+    },
+    "variations": {
+      "displayName": "variations",
+      "type": "component",
+      "repeatable": true,
+      "component": "variations.variations"
+    },
+    "image_single": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "renewal_time": {
+      "type": "string"
+    },
+    "renewal_type": {
+      "type": "enumeration",
+      "enum": [
+        "fixed",
+        "recurring"
+      ]
+    },
+    "recurrence_time": {
+      "type": "enumeration",
+      "enum": [
+        "monthly",
+        "quarterly",
+        "semester",
+        "yearly"
+      ]
+    },
+    "rateios_admins": {
+      "type": "json"
+    },
+    "rateios_bonus": {
+      "type": "json"
+    },
+    "rateios_unilevel": {
+      "type": "json"
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::category.category",
+      "mappedBy": "products"
+    }
+  }
+}

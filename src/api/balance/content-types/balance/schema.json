@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "balances",
+  "info": {
+    "singularName": "balance",
+    "pluralName": "balances",
+    "displayName": "Balance",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "balance_available": {
+      "type": "decimal"
+    },
+    "balance_blocked": {
+      "type": "decimal"
+    },
+    "users": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}

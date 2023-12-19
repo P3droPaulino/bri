@@ -1,0 +1,18 @@
+{
+  "kind": "collectionType",
+  "collectionName": "bris",
+  "info": {
+    "singularName": "bri",
+    "pluralName": "bris",
+    "displayName": "BRI"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Nome": {
+      "type": "string"
+    }
+  }
+}

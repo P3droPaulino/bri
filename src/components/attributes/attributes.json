@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_attributes_attributes",
+  "info": {
+    "displayName": "attributes"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "position": {
+      "type": "integer"
+    },
+    "visible": {
+      "type": "boolean"
+    },
+    "variation": {
+      "type": "boolean"
+    },
+    "options": {
+      "displayName": "options",
+      "type": "component",
+      "repeatable": true,
+      "component": "options.options"
+    }
+  }
+}

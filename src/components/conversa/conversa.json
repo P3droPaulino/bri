@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_conversa_conversas",
+  "info": {
+    "displayName": "conversa",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "users": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::users-permissions.user"
+    },
+    "conteudo": {
+      "type": "richtext"
+    }
+  }
+}

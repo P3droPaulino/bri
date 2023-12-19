@@ -1,0 +1,56 @@
+{
+  "kind": "collectionType",
+  "collectionName": "extracts",
+  "info": {
+    "singularName": "extract",
+    "pluralName": "extracts",
+    "displayName": "Extract",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "data": {
+      "type": "datetime"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "Indicação Direta",
+        "Qualificação (Fila única)",
+        "Rede",
+        "Graduação",
+        "Gratificação",
+        "Estorno",
+        "Assinatura",
+        "Adesão",
+        "Loja Virtual"
+      ]
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "Crédito",
+        "Débito"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "plan": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::plan.plan"
+    },
+    "value": {
+      "type": "decimal"
+    }
+  }
+}

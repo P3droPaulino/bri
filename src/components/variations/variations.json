@@ -1,0 +1,12 @@
+{
+  "collectionName": "components_variations_variations",
+  "info": {
+    "displayName": "variations"
+  },
+  "options": {},
+  "attributes": {
+    "id_variation": {
+      "type": "string"
+    }
+  }
+}

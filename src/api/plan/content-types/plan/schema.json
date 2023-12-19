@@ -1,0 +1,72 @@
+{
+  "kind": "collectionType",
+  "collectionName": "plans",
+  "info": {
+    "singularName": "plan",
+    "pluralName": "plans",
+    "displayName": "Plan",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "dataAtivacao": {
+      "type": "datetime"
+    },
+    "statusAtivacao": {
+      "type": "boolean"
+    },
+    "patrocinados": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::plan.plan",
+      "mappedBy": "patrocinador"
+    },
+    "patrocinador": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::plan.plan",
+      "inversedBy": "patrocinados"
+    },
+    "matriz_patrocinados": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::plan.plan",
+      "mappedBy": "matriz_patrocinador"
+    },
+    "matriz_patrocinador": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::plan.plan",
+      "inversedBy": "matriz_patrocinados"
+    },
+    "Nome": {
+      "type": "string"
+    },
+    "qualificado": {
+      "type": "boolean"
+    },
+    "Vencimento": {
+      "type": "datetime"
+    },
+    "orders_subscription": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::order.order",
+      "mappedBy": "plan_subscription"
+    },
+    "order_accession": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::order.order",
+      "mappedBy": "plan_accession"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tickets",
+  "info": {
+    "singularName": "ticket",
+    "pluralName": "tickets",
+    "displayName": "Ticket",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Titulo": {
+      "type": "string"
+    },
+    "mensagem": {
+      "type": "richtext"
+    },
+    "departamento": {
+      "type": "enumeration",
+      "enum": [
+        "Financeiro",
+        "Atendimento",
+        "TI"
+      ]
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "conversa": {
+      "type": "component",
+      "repeatable": true,
+      "component": "conversa.conversa"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "Fechado",
+        "Aberto",
+        "Cancelado",
+        "Em análise",
+        "Aguardando Cliente"
+      ]
+    }
+  }
+}
