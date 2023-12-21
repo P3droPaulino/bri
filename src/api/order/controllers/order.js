@@ -86,7 +86,7 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
       //oid: oid,
       planSponsor: planSponsor,
     });
-    console.log("createOrder::", createOrder);
+    //console.log("createOrder::", createOrder);
     ctx.send(createOrder, 200); //Enviar resposta
   },
 

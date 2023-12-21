@@ -1273,6 +1273,55 @@ export interface ApiTicketTicket extends Schema.CollectionType {
   };
 }
 
+export interface ApiVmePointVmePoint extends Schema.CollectionType {
+  collectionName: 'vme_points';
+  info: {
+    singularName: 'vme-point';
+    pluralName: 'vme-points';
+    displayName: 'VME Points';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    quantidadePontos: Attribute.Decimal;
+    order: Attribute.Relation<
+      'api::vme-point.vme-point',
+      'oneToOne',
+      'api::order.order'
+    >;
+    plan_generator: Attribute.Relation<
+      'api::vme-point.vme-point',
+      'oneToOne',
+      'api::plan.plan'
+    >;
+    plan_team: Attribute.Relation<
+      'api::vme-point.vme-point',
+      'oneToOne',
+      'api::plan.plan'
+    >;
+    plan_receiver: Attribute.Relation<
+      'api::vme-point.vme-point',
+      'oneToOne',
+      'api::plan.plan'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::vme-point.vme-point',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::vme-point.vme-point',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiWebhookWebhook extends Schema.CollectionType {
   collectionName: 'webhooks';
   info: {
@@ -1331,6 +1380,7 @@ declare module '@strapi/types' {
       'api::product.product': ApiProductProduct;
       'api::support-material.support-material': ApiSupportMaterialSupportMaterial;
       'api::ticket.ticket': ApiTicketTicket;
+      'api::vme-point.vme-point': ApiVmePointVmePoint;
       'api::webhook.webhook': ApiWebhookWebhook;
     }
   }

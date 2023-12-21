@@ -6,7 +6,7 @@
  */
 
 const { createCoreController } = require('@strapi/strapi').factories;
-const { empty, getFileById, getCurrentDomain, getUserMetas, getRateioBonus, pagoDentroMesAtual } = require('../../bri/controllers/utils');
+const { empty, getFileById, getCurrentDomain, getUserMetas, getRateioBonus, pagoDentroMesAtual, removerCamposSensiveis } = require('../../bri/controllers/utils');
 const balanceService = require('../services/balance-service');
 
 module.exports = createCoreController('api::bri.bri', ({ strapi }) => ({
@@ -312,8 +312,169 @@ module.exports = createCoreController('api::bri.bri', ({ strapi }) => ({
    * Método para debitar ou creditar saldo de um usuário.
    */
   async balance(ctx) {
+    // @ts-ignore
     return await balanceService.balance(strapi, ctx.request.body);
   },
 
+  /**
+ * Monta a visualização em árvore da matriz.
+ * @param {*} ctx
+ * @method GET
+ */
+async matrizview(ctx) {
+  const { id } = ctx.params; // ID do plano fornecido na requisição
+  const { protocol } = ctx.request;
+  const baseUrl = `${protocol}://${ctx.request.header.host}`; // BASE URL STRAPI
+
+  // Função para buscar recursivamente os patrocinados e montar a árvore
+  async function buscarPatrocinados(idPlano, matriz) {
+      const plano = await strapi.entityService.findOne("api::plan.plan", idPlano, { populate: "*" });
+      if (!plano) return;
+
+      // Adiciona o plano atual à matriz
+      matriz.push({
+          "name": String(plano?.id),
+          "imageUrl": "http://localhost:1337/uploads/avatar_gen1131df27cb6136df0b9cfd25d25fcc2f_a03ed69be0.jpg",
+          "area": "Adesão - Plano Desconto (Fila Única Global + MI PREV)",
+          "profileUrl": "http://localhost:1337/api/users/4",
+          "office": "Administrador",
+          "tags": "Mi2",
+          "positionName": "6",
+          "id": String(plano?.id),
+          "parentId": plano?.matriz_patrocinador ? String(plano?.matriz_patrocinador?.id) : null,
+          "size": "",
+          "qualificado": "",
+          "contagem_abaixo": ""
+          // Outros campos conforme necessário
+      });
+
+      // Busca recursiva pelos patrocinados
+      for (const patrocinado of plano?.matriz_patrocinados) {
+          await buscarPatrocinados(patrocinado.id, matriz);
+      }
+  }
+
+  const matriz = [];
+  await buscarPatrocinados(id, matriz);
+
+  return matriz;
+},
+
+
+async contagemPlanos(ctx) {
+  const { id } = ctx.params; // O ID do plano inicial
+
+  async function contarPlanos(idPlano, nivelAtual, resultado, nivelMaximo) {
+      if (nivelAtual > nivelMaximo) return resultado;
+
+      // Inicializa o resultado para o nível atual, se ainda não foi inicializado
+      if (!resultado[nivelAtual]) {
+          resultado[nivelAtual] = { total: 0, ativos: 0 };
+      }
+
+      // Somente buscar e contar planos se não estiver no nível 0
+      if (nivelAtual > 0) {
+          const plano = await strapi.entityService.findOne("api::plan.plan", idPlano, { populate: "*" });
+          if (!plano) return resultado;
+
+          resultado[nivelAtual].total += 1;
+          if (plano?.statusAtivacao) {
+              resultado[nivelAtual].ativos += 1;
+          }
+      }
+
+      // Busca os planos do nível seguinte
+      if (nivelAtual === 0) {
+          const planoRaiz = await strapi.entityService.findOne("api::plan.plan", idPlano, { populate: "*" });
+          for (const patrocinado of planoRaiz?.matriz_patrocinados) {
+              await contarPlanos(patrocinado.id, nivelAtual + 1, resultado, nivelMaximo);
+          }
+      } else {
+          const plano = await strapi.entityService.findOne("api::plan.plan", idPlano, { populate: "*" });
+          for (const patrocinado of plano?.matriz_patrocinados) {
+              await contarPlanos(patrocinado.id, nivelAtual + 1, resultado, nivelMaximo);
+          }
+      }
+
+      return resultado;
+  }
+
+  // Inicializa o objeto de resultado com todos os níveis como zero
+  const resultadoInicial = {};
+  for (let i = 0; i <= 7; i++) {
+      resultadoInicial[i] = { total: 0, ativos: 0 };
+  }
+
+  const resultadoFinal = await contarPlanos(id, 0, resultadoInicial, 7); // 7 é o número máximo de níveis
+  return resultadoFinal;
+},
+
+// async detalhesPlanosGET(ctx) {
+//   const { id, nivel, status } = ctx.params; // ID do plano e parâmetros opcionais
+
+//   async function buscarDetalhesPlanos(idPlano, nivelAtual, nivelFiltrado, detalhes, statusFiltro) {
+//       if (nivelAtual > nivelFiltrado) return;
+
+//       const plano = await strapi.entityService.findOne("api::plan.plan", idPlano, { populate: "*" });
+//       if (!plano) return;
+
+//       // Adiciona detalhes do plano se estiver no nível filtrado
+//       if (nivelAtual === nivelFiltrado) {
+//           if (!detalhes[nivelAtual]) detalhes[nivelAtual] = [];
+
+//           // Filtra pelo status, se necessário
+//           if (statusFiltro === 'ativos' && !plano.data.attributes.statusAtivacao) return;
+//           if (statusFiltro === 'inativos' && plano.data.attributes.statusAtivacao) return;
+
+//           detalhes[nivelAtual].push(plano);
+//       }
+
+//       // Recursão para os planos patrocinados
+//       for (const patrocinado of plano.data.attributes.matriz_patrocinados.data) {
+//           await buscarDetalhesPlanos(patrocinado.id, nivelAtual + 1, nivelFiltrado, detalhes, statusFiltro);
+//       }
+//   }
+
+//   const nivelFiltrado = nivel ? parseInt(nivel) : 7; // Usa o nível especificado ou 7 por padrão
+//   const detalhes = {};
+//   await buscarDetalhesPlanos(id, 0, nivelFiltrado, detalhes, status); // Começa a busca a partir do nível 0
+
+//   return detalhes[nivelFiltrado] || []; // Retorna apenas os detalhes do nível filtrado
+// },
+
+
+async detalhesPlanos(ctx) {
+  const { id, nivel, status } = ctx.params; // ID do plano e parâmetros opcionais
+
+  async function buscarDetalhesPlanos(idPlano, nivelAtual, nivelFiltrado, detalhes, statusFiltro) {
+      if (nivelAtual > nivelFiltrado) return;
+
+      const plano = await strapi.entityService.findOne("api::plan.plan", idPlano, { populate: "*" });
+      if (!plano) return;
+
+      // Adiciona detalhes do plano se estiver no nível filtrado
+      if (nivelAtual === nivelFiltrado) {
+          if (!detalhes[nivelAtual]) detalhes[nivelAtual] = [];
+
+          // Filtra pelo status, se necessário
+          if (statusFiltro === 'ativos' && !plano?.statusAtivacao) return;
+          if (statusFiltro === 'inativos' && plano?.statusAtivacao) return;
+
+          const planoFiltrado = removerCamposSensiveis(plano);
+          detalhes[nivelAtual].push(planoFiltrado);
+      }
+
+      // Recursão para os planos patrocinados
+      for (const patrocinado of plano?.matriz_patrocinados) {
+          await buscarDetalhesPlanos(patrocinado.id, nivelAtual + 1, nivelFiltrado, detalhes, statusFiltro);
+      }
+  }
+
+  const nivelFiltrado = nivel ? parseInt(nivel) : 7; // Usa o nível especificado ou 7 por padrão
+  const detalhes = {};
+  await buscarDetalhesPlanos(id, 0, nivelFiltrado, detalhes, status); // Começa a busca a partir do nível 0
+
+  return detalhes[nivelFiltrado] || []; // Retorna apenas os detalhes do nível filtrado
+},
 
 }));

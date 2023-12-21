@@ -128,6 +128,77 @@ const getRateioBonus = (oobj, key) => {
 };
 
 
+// Função para remover campos sensíveis de um plano
+const removerCamposSensiveis = (plano) => {
+  const camposSensiveis = [
+      'password', 'passwordFinancial', 'resetPasswordToken', 'document_id',
+      'documentNumber', 'document_issue_uf', 'clienteCode_asaas', 'motherName',
+      'postalCode', 'marital_status', 'confirmationToken', 'birthDate', 'registrationToken'
+  ];
+  
+  // Remove campos sensíveis do objeto attributes
+  camposSensiveis.forEach(campo => {
+      delete plano[campo];
+  });
+
+  // Remove campos sensíveis do objeto user, createdBy e updatedBy, se existirem
+  ['user', 'createdBy', 'updatedBy'].forEach(relation => {
+      if (plano[relation]) {
+          camposSensiveis.forEach(campo => {
+              delete plano[relation][campo];
+          });
+      }
+  });
+
+  return plano;
+};
+
+
+async function atribuirPontosVME(idPlano, pontos, order, idPlanoInicial, idEquipe = null) {
+  const plano = await strapi.entityService.findOne("api::plan.plan", idPlano, { populate: "matriz_patrocinador" });
+
+  console.log("ENTREI NO VME");
+  //console.log(plano);
+
+  if (!plano) return;
+
+      // Se idPlanoInicial não for fornecido, usa o idPlano atual como inicial
+      if (!idPlanoInicial) {
+        idPlanoInicial = idPlano;
+    }
+
+     // Se idEquipe não for fornecido, usa o idPlanoInicial como equipe
+     if (!idEquipe) {
+      idEquipe = idPlanoInicial;
+  } else {
+      // Na primeira chamada recursiva, idEquipe será definido como idPlano atual
+      idEquipe = idPlano;
+  }
+
+  // Criar ou atualizar registro de pontos VME para este plano
+  await criarRegistroPontosVME(plano, pontos, order, idPlanoInicial, idEquipe);
+
+  // Se existir um patrocinador na matriz, continuar subindo
+  if (plano?.matriz_patrocinador) {
+    console.log("ENTREI NO VME 2")
+      await atribuirPontosVME(plano?.matriz_patrocinador?.id, pontos, order, idPlanoInicial, idPlano);
+  }
+}
+
+async function criarRegistroPontosVME(plano, pontos, order, idPlanoInicial, idEquipe) {
+  const dadosPontosVME = {
+      quantidadePontos: pontos,
+      order: order,
+      plan_generator: idPlanoInicial,
+      plan_team: idEquipe, 
+      plan_receiver: plano?.matriz_patrocinador?.id
+      
+  };
+
+  // Substitua isso pela lógica de criação ou atualização dos pontos VME no seu Strapi
+  await strapi.entityService.create('api::vme-point.vme-point', { data: dadosPontosVME });
+}
+
 module.exports = {
   empty,
   pagoDentroMesAtual,
@@ -135,4 +206,8 @@ module.exports = {
   getFileById,
   getCurrentDomain,
   getUserMetas,
+  removerCamposSensiveis,
+  atribuirPontosVME,
+  criarRegistroPontosVME,
+
 }

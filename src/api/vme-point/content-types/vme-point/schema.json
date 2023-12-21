@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "vme_points",
+  "info": {
+    "singularName": "vme-point",
+    "pluralName": "vme-points",
+    "displayName": "VME Points"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "quantidadePontos": {
+      "type": "decimal"
+    },
+    "order": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::order.order"
+    },
+    "plan_generator": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::plan.plan"
+    },
+    "plan_team": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::plan.plan"
+    },
+    "plan_receiver": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::plan.plan"
+    }
+  }
+}
