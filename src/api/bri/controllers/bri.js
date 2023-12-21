@@ -131,7 +131,7 @@ module.exports = createCoreController('api::bri.bri', ({ strapi }) => ({
         const item = plans[i];
         // console.log("Orders", item?.order_type);
         let position = i + 1;
-        //let userMetas = await getUserMetas(item?.user?.id || 0);
+        let userMetas = await getUserMetas(item?.user?.id || 0);
         // let avatarUrl = userMetas?.avatar?.[0]?.url || null;
         // avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user.jpg" : avatarUrl;
         // console.log("Avatar URL:", avatarUrl);
@@ -476,5 +476,57 @@ async detalhesPlanos(ctx) {
 
   return detalhes[nivelFiltrado] || []; // Retorna apenas os detalhes do nível filtrado
 },
+
+
+async meusDiretos(ctx) {
+  const user = ctx.state.user;
+  const baseUrl = `${ctx.request.protocol}://${ctx.request.header.host}`; // Base URL para avatar
+
+  const plans = await strapi.entityService.findMany('api::plan.plan', {
+      filters: { user: { id: { $eq: user.id } } },
+      populate: { patrocinados: { populate: { user: true, matriz_patrocinador: true } } }
+  });
+
+  const usersPatrocinados = new Map();
+
+  for (const plan of plans) {
+      for (const patrocinado of plan.patrocinados) {
+          const userId = patrocinado.user.id;
+          let userMeta = await getUserMetas(userId);
+          userMeta.avatarUrl = userMeta.avatar && userMeta.avatar.length > 0 ? baseUrl + userMeta.avatar[0].url : null;
+          
+          // Aplicar a função para remover campos sensíveis
+          const userInfo = removerCamposSensiveis({ ...patrocinado.user, avatarUrl: userMeta.avatarUrl });
+          const planoInfo = removerCamposSensiveis(patrocinado);
+          const planoPatrocinadorInfo = removerCamposSensiveis(plan);
+
+          if (!usersPatrocinados.has(userId)) {
+              usersPatrocinados.set(userId, { 
+                  userInfo: userInfo, 
+                  plans: [] 
+              });
+          }
+          usersPatrocinados.get(userId).plans.push({
+              planoInfo: planoInfo,
+              planoPatrocinador: planoPatrocinadorInfo
+          });
+      }
+  }
+
+  // Converter o Map em uma estrutura adequada para a resposta
+  const response = Array.from(usersPatrocinados.values()).map(userPatrocinado => ({
+      id: userPatrocinado.userInfo.id,
+      user: userPatrocinado.userInfo,
+      patrocinados: userPatrocinado.plans.map(p => ({
+          plano: p.planoInfo,
+          patrocinador: p.planoPatrocinador
+      }))
+  }));
+
+  return response; // Retorna diretamente a resposta como JSON
+}
+
+
+
 
 }));

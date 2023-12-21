@@ -41,6 +41,14 @@ module.exports = {
         },
       },
       {
+        method: 'GET',
+        path: '/bri/meus-diretos',
+        handler: 'bri.meusDiretos',
+        config: {
+          description: "Exibe todos os diretos do usuário atual",
+        },
+      },
+      {
         method: 'POST',
         path: '/bri/balance',
         handler: 'bri.balance',

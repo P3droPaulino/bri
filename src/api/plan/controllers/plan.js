@@ -24,9 +24,10 @@ async me(ctx) {
           id: { $eq: me.id },
         },
       },
-      populate: {
+      populate:
+      {
         user: true,
-      },
+        }
     };
 
     try {

@@ -199,6 +199,7 @@ async function criarRegistroPontosVME(plano, pontos, order, idPlanoInicial, idEq
   await strapi.entityService.create('api::vme-point.vme-point', { data: dadosPontosVME });
 }
 
+
 module.exports = {
   empty,
   pagoDentroMesAtual,
