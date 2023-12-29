@@ -6,8 +6,10 @@
  */
 
 const { createCoreController } = require('@strapi/strapi').factories;
+const axios = require('axios');
 const { empty, getFileById, getCurrentDomain, getUserMetas, getRateioBonus, pagoDentroMesAtual, removerCamposSensiveis } = require('../../bri/controllers/utils');
 const balanceService = require('../services/balance-service');
+
 
 module.exports = createCoreController('api::bri.bri', ({ strapi }) => ({
   /**
@@ -492,6 +494,7 @@ async meusDiretos(ctx) {
   for (const plan of plans) {
       for (const patrocinado of plan.patrocinados) {
           const userId = patrocinado.user.id;
+          // @ts-ignore
           let userMeta = await getUserMetas(userId);
           userMeta.avatarUrl = userMeta.avatar && userMeta.avatar.length > 0 ? baseUrl + userMeta.avatar[0].url : null;
           
@@ -524,9 +527,290 @@ async meusDiretos(ctx) {
   }));
 
   return response; // Retorna diretamente a resposta como JSON
-}
+},
 
 
+/**
+   * Criar Cobrança PIX
+   * @method POST
+   * @param {*} ctx
+   * @return { Promise<any> }
+   */
+async createPIX(ctx) {
+  const body = ctx.request.body;
+  const hasError = [];
+  const env = process.env;
+  const urlAsaas = process.env.URL_asaas;
+  const keyAsaas = process.env.API_key;
+  let clienteAsaas;
+  // Gerar mensagem de erro, se houver
+  if (typeof body.id !== 'number') hasError.push("campo 'id' deve ser um Inteiro");
+
+
+
+  const orderUpdate = await strapi.entityService.findOne("api::order.order", body.id, { populate: "*" });
+  const userUpdate = await strapi.entityService.findOne("plugin::users-permissions.user", orderUpdate?.user?.id, { populate: "*" });
+
+  //console.log(userUpdate);
+  try {
+    if (!userUpdate?.clienteCode_asaas || userUpdate?.clienteCode_asaas === null || userUpdate?.clienteCode_asaas === 0) {
+      console.log("Não existe conta asaas, criando...");
+
+      // Primeira requisição para criar o cliente no Asaas
+      const customerData = {
+        name: userUpdate?.fullName,
+        email: userUpdate?.email,
+        phone: userUpdate?.phoneNumber.slice(3),
+        mobilePhone: userUpdate?.phoneNumber_2.slice(3),
+        cpfCnpj: userUpdate?.documentNumber,
+        postalCode: userUpdate?.postalCode,
+        address: userUpdate?.street,
+        addressNumber: userUpdate?.number,
+        complement: userUpdate?.addressComplement,
+        province: userUpdate?.neighborhood,
+        notificationDisabled: true,
+      };
+
+      const customerResponse = await axios.post(urlAsaas + '/v3/customers', customerData, {
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json',
+          access_token: keyAsaas,
+        },
+      });
+
+      const clienteAsaas = customerResponse.data;
+      console.log(clienteAsaas);
+
+      console.log("atualizar usuário: ", orderUpdate?.user?.id, "com ID: ", clienteAsaas?.id);
+
+      const clienteAsaasof = await strapi.entityService.update("plugin::users-permissions.user", orderUpdate?.user?.id, {
+        data: {
+          clienteCode_asaas: clienteAsaas?.id
+        },
+      });
+
+      console.log("Dados do Pedido: ", orderUpdate);
+
+      const daysToAdd = 2; // Exemplo: adicionar 7 dias
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + daysToAdd);
+
+      // Agora você pode formatar a data para o formato desejado (por exemplo, 'YYYY-MM-DD')
+      const formattedDueDate = `${dueDate.getFullYear()}-${(dueDate.getMonth() + 1).toString().padStart(2, '0')}-${dueDate.getDate().toString().padStart(2, '0')}`;
+
+
+      const paymentData = {
+        billingType: 'PIX',
+        customer: clienteAsaas?.id,
+        dueDate: formattedDueDate,
+        value: orderUpdate?.total,
+        description: orderUpdate?.product?.name,
+        postalService: false,
+      };
+
+      const paymentResponse = await axios.post(urlAsaas + '/v3/payments', paymentData, {
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json',
+          access_token: keyAsaas,
+        },
+      });
+
+      console.log(paymentResponse.data);
+
+      const responseAsaas = await strapi.entityService.update('api::order.order', orderUpdate?.id, {
+        data: {
+          gateway_cobranca: paymentResponse.data
+        },
+      });
+
+      console.log("DADOS QR: ", urlAsaas + '/v3/payments/' + paymentResponse.data.id + '/pixQrCode')
+      const paymentQR = await axios.get(urlAsaas + '/v3/payments/' + paymentResponse.data.id + '/pixQrCode', {
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json',
+          access_token: keyAsaas,
+        },
+      });
+
+
+      const responseQRAsaas = await strapi.entityService.update('api::order.order', orderUpdate?.id, {
+        data: {
+          pix_base64: paymentQR.data
+        },
+      });
+
+      console.log(paymentQR.data);
+
+      return paymentQR.data;
+
+
+    // @ts-ignore
+    } else if (userUpdate?.clienteCode_asaas && (!orderUpdate?.gateway_cobranca || orderUpdate?.gateway_cobranca === null || orderUpdate?.gateway_cobranca === 0)) {
+
+      const daysToAdd = 2; // Exemplo: adicionar 7 dias
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + daysToAdd);
+
+      // Agora você pode formatar a data para o formato desejado (por exemplo, 'YYYY-MM-DD')
+      const formattedDueDate = `${dueDate.getFullYear()}-${(dueDate.getMonth() + 1).toString().padStart(2, '0')}-${dueDate.getDate().toString().padStart(2, '0')}`;
+
+
+      const paymentData = {
+        billingType: 'PIX',
+        customer: userUpdate?.clienteCode_asaas,
+        dueDate: formattedDueDate,
+        value: orderUpdate?.total,
+        description: orderUpdate?.product?.name,
+        postalService: false,
+      };
+
+      const paymentResponse = await axios.post(urlAsaas + '/v3/payments', paymentData, {
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json',
+          access_token: keyAsaas,
+        },
+      });
+
+      console.log(paymentResponse.data);
+
+      const responseAsaas = await strapi.entityService.update('api::order.order', orderUpdate?.id, {
+        data: {
+          gateway_cobranca: paymentResponse.data
+        },
+      });
+
+      console.log("DADOS QR: ", urlAsaas + '/v3/payments/' + paymentResponse.data.id + '/pixQrCode')
+      const paymentQR = await axios.get(urlAsaas + '/v3/payments/' + paymentResponse.data.id + '/pixQrCode', {
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json',
+          access_token: keyAsaas,
+        },
+      });
+
+
+      const responseQRAsaas = await strapi.entityService.update('api::order.order', orderUpdate?.id, {
+        data: {
+          pix_base64: paymentQR.data
+        },
+      });
+
+      console.log(paymentQR.data);
+
+      return paymentQR.data;
+
+    }else if (userUpdate?.clienteCode_asaas && orderUpdate?.gateway_cobranca){
+
+      const paymentQR = await axios.get(urlAsaas + '/v3/payments/' + orderUpdate?.gateway_cobranca?.id + '/pixQrCode', {
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json',
+          access_token: keyAsaas,
+        },
+      });
+
+
+      const responseQRAsaas = await strapi.entityService.update('api::order.order', orderUpdate?.id, {
+        data: {
+          pix_base64: paymentQR.data
+        },
+      });
+
+      console.log(paymentQR.data);
+
+      return paymentQR.data;
+
+
+    }
+  } catch (error) {
+    console.error(error);
+  }
+},
+
+
+// /**
+//    * Atualizar Mensalidade
+//    * @method POST
+//    * @param {*} ctx
+//    * @return { Promise<any> }
+//    */
+// async bodyOrderUpdate(ctx) {
+//   const body = ctx.request.body;
+//   const hasError = [];
+//   // Gerar mensagem de erro, se houver
+//   if (typeof body.id !== 'number') hasError.push("campo 'user' deve ser um Inteiro");
+
+//   console.log("Pedido AQUI: ", body)
+
+//   const orderUpdate = await strapi.entityService.findOne("api::order.order", body.id, { populate: "*" });
+
+//   console.log("Fazer update do pedido: ", orderUpdate);
+
+//   if (orderUpdate?.order_type == 'subscription' && empty(orderUpdate?.pedido_pai)) {
+//     return {
+//       id: 0,
+//       message: "Para criar uma assinatura vincule a um produto principal"
+//     }
+//   }
+
+//   // Debitar ou creditar
+//   if (orderUpdate?.id) {
+
+//     console.log("entrou aqui, modo saldo");
+
+//     const userBalance = await balance({
+//       user: orderUpdate?.user.id,
+//       mode: "D",
+//       amount: orderUpdate?.total,
+//       to: "available",
+//       orderID: orderUpdate?.id
+//     });
+
+//     console.log("Balance: ", userBalance);
+//     // let order_end;
+//     if (userBalance?.status) {
+//       console.log("ID Usuário Pagante: ", orderUpdate?.user)
+//       //Atualizar pedido se for pago com saldo da conta
+//       const ordr = await strapi.entityService.update("api::order.order", orderUpdate?.id, {
+//         data: {
+//           paid: userBalance?.status,
+//           //dataAtivacao: new Date(), // Usado para filtrar na "qualificação", sei lá!
+//           dataPagamento: new Date(),
+//           //statusAtivacao: userBalance?.status,
+//         },
+//         populate: "*"
+//       });
+
+//       console.log("orderUpdate::ordr?.pedido_pai", ordr?.pedido_pai?.id);
+
+//       if ((!empty(ordr?.order_type) && ordr?.order_type === "subscription") && !empty(ordr?.pedido_pai)) {
+//         try {
+//           // Atualizar pedido pai se foi pago ou não
+//           const ordrPai = await strapi.entityService.update("api::order.order", ordr?.pedido_pai?.id, {
+//             data: {
+//               paid: userBalance?.status,
+//               dataAtivacao: new Date(), // Usado para filtrar na "qualificação"
+//               dataPagamento: new Date(),
+//               statusAtivacao: userBalance?.status,
+//               modoPagamento: "saldo",
+//             },
+//             populate: "*"
+//           });
+//           order_end = ordrPai;
+//         } catch (e) {
+//           console.error("orderUpdate::ERROR", e.message);
+//         }
+//       }
+//       //await pagarBonusPontosMatriz(orderUpdate?.id); // Pagar Pontos e Bônus
+
+//     }
+//     // return order_end;
+//   }
+//   return orderUpdate;
+// },
 
 
 }));

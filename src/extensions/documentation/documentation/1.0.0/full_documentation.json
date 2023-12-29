@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2023-12-21T08:32:11.514Z"
+    "x-generation-date": "2023-12-29T00:46:12.654Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -1561,9 +1561,6 @@
                           "Cancelado"
                         ]
                       },
-                      "clienteCode_asaas": {
-                        "type": "string"
-                      },
                       "passwordFinancial": {
                         "type": "string"
                       },
@@ -2558,6 +2555,9 @@
                             }
                           }
                         }
+                      },
+                      "clienteCode_asaas": {
+                        "type": "string"
                       },
                       "createdAt": {
                         "type": "string",
@@ -4075,9 +4075,6 @@
                           "Cancelado"
                         ]
                       },
-                      "clienteCode_asaas": {
-                        "type": "string"
-                      },
                       "passwordFinancial": {
                         "type": "string"
                       },
@@ -5072,6 +5069,9 @@
                             }
                           }
                         }
+                      },
+                      "clienteCode_asaas": {
+                        "type": "string"
                       },
                       "createdAt": {
                         "type": "string",
@@ -7852,9 +7852,6 @@
                           "Cancelado"
                         ]
                       },
-                      "clienteCode_asaas": {
-                        "type": "string"
-                      },
                       "passwordFinancial": {
                         "type": "string"
                       },
@@ -8849,6 +8846,9 @@
                             }
                           }
                         }
+                      },
+                      "clienteCode_asaas": {
+                        "type": "string"
                       },
                       "createdAt": {
                         "type": "string",
@@ -10083,9 +10083,6 @@
                           "Cancelado"
                         ]
                       },
-                      "clienteCode_asaas": {
-                        "type": "string"
-                      },
                       "passwordFinancial": {
                         "type": "string"
                       },
@@ -11080,6 +11077,9 @@
                             }
                           }
                         }
+                      },
+                      "clienteCode_asaas": {
+                        "type": "string"
                       },
                       "createdAt": {
                         "type": "string",
@@ -12387,9 +12387,6 @@
                           "Cancelado"
                         ]
                       },
-                      "clienteCode_asaas": {
-                        "type": "string"
-                      },
                       "passwordFinancial": {
                         "type": "string"
                       },
@@ -13384,6 +13381,9 @@
                             }
                           }
                         }
+                      },
+                      "clienteCode_asaas": {
+                        "type": "string"
                       },
                       "createdAt": {
                         "type": "string",
@@ -17435,9 +17435,6 @@
                           "Cancelado"
                         ]
                       },
-                      "clienteCode_asaas": {
-                        "type": "string"
-                      },
                       "passwordFinancial": {
                         "type": "string"
                       },
@@ -18432,6 +18429,9 @@
                             }
                           }
                         }
+                      },
+                      "clienteCode_asaas": {
+                        "type": "string"
                       },
                       "createdAt": {
                         "type": "string",
@@ -19658,9 +19658,6 @@
                                       "Cancelado"
                                     ]
                                   },
-                                  "clienteCode_asaas": {
-                                    "type": "string"
-                                  },
                                   "passwordFinancial": {
                                     "type": "string"
                                   },
@@ -19885,6 +19882,9 @@
                                         }
                                       }
                                     }
+                                  },
+                                  "clienteCode_asaas": {
+                                    "type": "string"
                                   },
                                   "createdAt": {
                                     "type": "string",
@@ -23601,6 +23601,87 @@
         ],
         "parameters": [],
         "operationId": "post/bri/balance",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BriRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bri/orderpix": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BriResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Bri"
+        ],
+        "parameters": [],
+        "operationId": "post/bri/orderpix",
         "requestBody": {
           "required": true,
           "content": {

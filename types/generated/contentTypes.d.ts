@@ -645,7 +645,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     account_status: Attribute.Enumeration<
       ['Pendente', 'An\u00E1lise', 'Pr\u00E9-aprovado', 'Aprovado', 'Cancelado']
     >;
-    clienteCode_asaas: Attribute.String;
     passwordFinancial: Attribute.String;
     plan_patrocinador: Attribute.Relation<
       'plugin::users-permissions.user',
@@ -657,6 +656,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToOne',
       'api::plan.plan'
     >;
+    clienteCode_asaas: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

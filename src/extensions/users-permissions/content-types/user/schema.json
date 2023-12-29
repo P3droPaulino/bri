@@ -156,9 +156,6 @@
         "Cancelado"
       ]
     },
-    "clienteCode_asaas": {
-      "type": "string"
-    },
     "passwordFinancial": {
       "type": "string"
     },
@@ -171,6 +168,9 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::plan.plan"
+    },
+    "clienteCode_asaas": {
+      "type": "string"
     }
   }
 }
