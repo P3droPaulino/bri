@@ -1051,9 +1051,9 @@ export interface ApiPlanPlan extends Schema.CollectionType {
       'manyToOne',
       'api::plan.plan'
     >;
-    Nome: Attribute.String;
+    name: Attribute.String;
     qualificado: Attribute.Boolean;
-    Vencimento: Attribute.DateTime;
+    vencimento: Attribute.DateTime;
     orders_subscription: Attribute.Relation<
       'api::plan.plan',
       'oneToMany',

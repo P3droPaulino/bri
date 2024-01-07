@@ -47,13 +47,13 @@
       "target": "api::plan.plan",
       "inversedBy": "matriz_patrocinados"
     },
-    "Nome": {
+    "name": {
       "type": "string"
     },
     "qualificado": {
       "type": "boolean"
     },
-    "Vencimento": {
+    "vencimento": {
       "type": "datetime"
     },
     "orders_subscription": {

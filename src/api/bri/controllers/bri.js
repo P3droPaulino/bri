@@ -71,6 +71,7 @@ module.exports = createCoreController('api::bri.bri', ({ strapi }) => ({
         const paymentDate = await pagoDentroMesAtual(plan);
         if (paymentDate == true) {
           let rateioBonusFilho = 0;
+          console.log("pago no mês: ", paymentDate);
 
           console.log("----------------PLAN AQUI-----------------");
           //console.log(plan);
@@ -134,9 +135,10 @@ module.exports = createCoreController('api::bri.bri', ({ strapi }) => ({
         // console.log("Orders", item?.order_type);
         let position = i + 1;
         let userMetas = await getUserMetas(item?.user?.id || 0);
-        // let avatarUrl = userMetas?.avatar?.[0]?.url || null;
-        // avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user.jpg" : avatarUrl;
-        // console.log("Avatar URL:", avatarUrl);
+        //console.log("usermetas: ", userMetas);
+         let avatarUrl = userMetas?.avatar?.[0]?.url || null;
+         avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user.jpg" : avatarUrl;
+         console.log("Avatar URL:", avatarUrl);
 
         let lastId = plans[i - 1]?.id || "";
 
@@ -154,23 +156,14 @@ module.exports = createCoreController('api::bri.bri', ({ strapi }) => ({
           ganhoEstimado = fator * countPaidItems; // Calcula o ganho estimado quando o item é qualificado
         }
 
-        let nomeprodutoof;
-        if (item?.pedido_filho && item.pedido_filho.length > 0) {
-          //console.log("AQUI VAI O ID:", item?.pedido_filho[0]?.id);
-          const nomeassinatura = await strapi.entityService.findOne('api::order.order', item?.pedido_filho[0]?.id, { populate: "*" });
-          nomeprodutoof = nomeassinatura?.produto?.name;
-          //console.log("NOME DA ASSINATURA", nomeprodutoof);
-        } else {
-          nomeprodutoof = item?.produto?.name || "__ADESAO__";
-        }
 
 
         filas.push({
-          //  "name": item?.user?.fullName?.split(" ")[0] || "__FULLNAME__",
-          // "imageUrl": baseUrl + avatarUrl,
-          // "area": nomeprodutoof,
+            "name": item?.user?.fullName?.split(" ")[0] || "__FULLNAME__",
+           "imageUrl": baseUrl + avatarUrl,
+           "area": item?.name || "--",
           // "profileUrl": `${baseUrl}/api/users/${item?.user?.id || 0}`,
-          //"office": item?.user?.username,//userMetas?.role?.name || "__USUARIO__",
+          "office": item?.user?.username,//userMetas?.role?.name || "__USUARIO__",
           "tags": "Mi2",
           // "isLoggedUser": false,
           "positionName": String(position),
@@ -333,20 +326,24 @@ async matrizview(ctx) {
       const plano = await strapi.entityService.findOne("api::plan.plan", idPlano, { populate: "*" });
       if (!plano) return;
 
+      let userMetas = await getUserMetas(plano?.user?.id || 0);
+      let avatarUrl = userMetas?.avatar?.[0]?.url || null;
+      avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user.jpg" : avatarUrl;
+
       // Adiciona o plano atual à matriz
       matriz.push({
-          "name": String(plano?.id),
-          "imageUrl": "http://localhost:1337/uploads/avatar_gen1131df27cb6136df0b9cfd25d25fcc2f_a03ed69be0.jpg",
-          "area": "Adesão - Plano Desconto (Fila Única Global + MI PREV)",
-          "profileUrl": "http://localhost:1337/api/users/4",
-          "office": "Administrador",
-          "tags": "Mi2",
-          "positionName": "6",
+          "name": plano?.user?.fullName?.split(" ")[0] || "__FULLNAME__",
+          "imageUrl": baseUrl + avatarUrl,
+          "area": plano?.name,
+          //"profileUrl": "http://localhost:1337/api/users/4",
+          //"office": "Administrador",
+          "tags": plano?.statusAtivacao,
+          //"positionName": "6",
           "id": String(plano?.id),
           "parentId": plano?.matriz_patrocinador ? String(plano?.matriz_patrocinador?.id) : null,
-          "size": "",
-          "qualificado": "",
-          "contagem_abaixo": ""
+          //"size": "",
+          //"qualificado": "",
+          //"contagem_abaixo": ""
           // Outros campos conforme necessário
       });
 
@@ -361,6 +358,62 @@ async matrizview(ctx) {
 
   return matriz;
 },
+
+
+/**
+ * Monta a visualização em árvore da matriz.
+ * @param {*} ctx
+ * @method GET
+ */
+async qualificacaocount(ctx) {
+  const { id } = ctx.params; // ID do plano fornecido na requisição
+  const { protocol } = ctx.request;
+  const baseUrl = `${protocol}://${ctx.request.header.host}`; // BASE URL STRAPI
+
+  console.log("entrou aqui crl");
+  const plano = await strapi.entityService.findOne("api::plan.plan", id, { populate: "*" });
+
+  // Filtrar patrocinados com statusAtivacao true
+  const patrocinadosAtivos = plano.patrocinados.filter(item => item.statusAtivacao);
+
+  // Contar quantidade de patrocinados com statusAtivacao true
+  const countPatrocinadosAtivos = patrocinadosAtivos.length;
+
+  // Calcular percentual em relação ao objetivo de 5
+  let percentual = (countPatrocinadosAtivos / 5) * 100;
+
+  // Limitar a 100% se ultrapassar
+  percentual = percentual > 100 ? 100 : percentual;
+
+  // Criar um novo objeto com apenas os campos desejados
+  const planoResumido = {
+    id: plano.id,
+    dataAtivacao: plano.dataAtivacao,
+    statusAtivacao: plano.statusAtivacao,
+    qualificado: plano.qualificado,
+    vencimento: plano.vencimento,
+    createdAt: plano.createdAt,
+    updatedAt: plano.updatedAt,
+    name: plano.name,
+    user: {
+      id: plano.user.id,
+      username: plano.user.username,
+      email: plano.user.email,
+      // Outros campos do usuário podem ser adicionados aqui se necessário
+    }
+    // Outros campos podem ser adicionados aqui se necessário
+  };
+
+  console.log(planoResumido);
+
+  // Retornar os dados resumidos do plano, a contagem e o percentual
+  return {
+    planoResumido,
+    countPatrocinadosAtivos,
+    percentual
+  };
+},
+
 
 
 async contagemPlanos(ctx) {

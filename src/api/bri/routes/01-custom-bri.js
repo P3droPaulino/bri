@@ -64,6 +64,15 @@ module.exports = {
         description: "Inserir ou Debitar SALDO",
       },
     },
+    {
+      method: 'GET',
+      path: '/bri/qualificacaocount/:id',
+      handler: 'bri.qualificacaocount',
+      config: {
+        description: "Contagem qualificação",
+      },
+    }
+
     // {
     //   method: 'POST',
     //   path: '/bri/ordersaldo',
