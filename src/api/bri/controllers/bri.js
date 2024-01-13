@@ -784,6 +784,34 @@ async createPIX(ctx) {
 },
 
 
+
+/**
+   * Criar Cobrança PIX
+   * @method POST
+   * @param {*} ctx
+   * @return { Promise<any> }
+   */
+async rateiobonus(ctx) {
+  const body = ctx.request.body;
+  const hasError = [];
+  const env = process.env;
+  const urlAsaas = process.env.URL_asaas;
+  const keyAsaas = process.env.API_key;
+  let clienteAsaas;
+  // Gerar mensagem de erro, se houver
+  if (typeof body.id !== 'number') hasError.push("campo 'id' deve ser um Inteiro");
+
+
+
+  const order = await strapi.entityService.findOne("api::order.order", body.id, { populate: "*" });
+
+  const object_rateio = getRateioBonus(order, body.type);
+
+  return object_rateio
+
+
+},
+
 // /**
 //    * Atualizar Mensalidade
 //    * @method POST
@@ -864,6 +892,72 @@ async createPIX(ctx) {
 //   }
 //   return orderUpdate;
 // },
+
+
+
+/**
+ * Monta o relatório de pontos por equipe.
+ * @param {*} ctx
+ * @method GET
+ */
+async pontosMatriz(ctx) {
+  const { id } = ctx.params;
+
+  const pontos = await strapi.entityService.findMany('api::vme-point.vme-point', {
+    filters: { plan_receiver: { id: { $eq: id } } },
+    populate: { plan_receiver: { populate: { user: true } }, plan_generator: { populate: { user: true } }, plan_team: { populate: { user: true } } }
+  });
+
+  const plano = await strapi.entityService.findOne('api::plan.plan', id, {
+    populate: {
+      user: true, 
+      graduation: {
+        populate: { icon: true }
+      }
+    }
+  });
+  
+
+
+  let relatorioPorEquipe = {};
+  let somaTotalPontos = 0; // Variável para armazenar a soma total de pontos
+
+  const planoFiltrado = removerCamposSensiveis(plano);
+
+  pontos.forEach(ponto => {
+    ponto.plan_receiver = removerCamposSensiveis(ponto.plan_receiver);
+    ponto.plan_generator = removerCamposSensiveis(ponto.plan_generator);
+    ponto.plan_team = removerCamposSensiveis(ponto.plan_team);
+
+    const equipeId = ponto.plan_team.id;
+    const pontosEquipe = ponto.quantidadePontos;
+
+    somaTotalPontos += pontosEquipe; // Adiciona os pontos à soma total
+
+    if (!relatorioPorEquipe[equipeId]) {
+      relatorioPorEquipe[equipeId] = {
+        detalhesEquipe: ponto.plan_team,
+        totalPontos: 0
+      };
+    }
+
+    relatorioPorEquipe[equipeId].totalPontos += pontosEquipe;
+  });
+
+  const relatorioFinal = {
+    plano: planoFiltrado,
+    pontos: pontos,
+    meta: Object.values(relatorioPorEquipe),
+    totalPontosTodosTimes: somaTotalPontos // Adiciona a soma total ao relatório
+  };
+
+  console.log("Relatório de pontos com total geral:", relatorioFinal);
+
+  return relatorioFinal;
+}
+
+
+
 
 
 }));

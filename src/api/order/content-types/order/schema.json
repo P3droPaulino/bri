@@ -90,6 +90,11 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::plan.plan"
+    },
+    "plan": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::plan.plan"
     }
   }
 }

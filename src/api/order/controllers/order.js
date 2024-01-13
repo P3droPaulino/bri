@@ -70,6 +70,8 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
     const allOrderes = await allOrders();
     const planSponsor = await planPatrocinador(data?.user); // ID patrocinador MESTRE
 
+    console.log("voltou aqui!")
+
     if( allOrderes.length > 0 && empty(planSponsor)){
       ctx.send({
         status: false,

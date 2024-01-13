@@ -1,6 +1,5 @@
 const { empty } = require('../../bri/controllers/utils');
-const balanceService = require('../../bri/services/balance-service');
-const { atribuirPontosVME } = require('../../bri/controllers/utils');
+const { handleSubscriptionOrder, handleAccessionOrder, handleOtherOrderTypes } = require('../../bri/controllers/utils');
 
 
 // /**
@@ -146,6 +145,11 @@ const bodyOrderCreate = async (body) => {
     const data = body["data"];
     const planSponsor = body["planSponsor"]
 
+    let planPatrocinadorValue = planSponsor;
+    if (product?.type !== "accession") {
+        planPatrocinadorValue = null; // Deixa vazio se o tipo for diferente de 'accession'
+    }
+    console.log("entrou no orderCreate")
     const BODY_ORDER = {
         "total": product?.regular_price,
         "dataCompra": new Date(),
@@ -153,8 +157,9 @@ const bodyOrderCreate = async (body) => {
         "user": data?.user,
         "quantidade": data?.quantidade,
         "order_type": product?.type,
-        "pedido_pai": data?.pedido_pai,
-        "plan_patrocinador": planSponsor, //atribui patrocinador
+        "plan_subscription": data?.pedido_pai,
+        "plan": data?.pedido_pai,
+        "plan_patrocinador": planPatrocinadorValue, //atribui patrocinador
         "product": data?.product,
         "modoPagamento": data?.modoPagamento,
         "rateios_admin": product?.rateios_admins,
@@ -165,152 +170,28 @@ const bodyOrderCreate = async (body) => {
     const orderCreated = await strapi.entityService.create("api::order.order", { data: BODY_ORDER });
     const userWithBuyer = data?.user;
 
+    if (product?.type == 'subscription' && empty(data?.pedido_pai)) {
+        return {
+          id: 0,
+          message: "Para criar uma assinatura vincule a um plano"
+        }
+      }
+
     if (data.modoPagamento === "saldo") {
         if (product?.type === 'subscription') {
             // Se o tipo de pedido for 'subscription' e pagamento com saldo
-            return handleSubscriptionOrder(orderCreated, data, product, userWithBuyer);
+            return handleSubscriptionOrder("saldo", orderCreated, data, product, userWithBuyer);
         } else if (product?.type === 'accession') {
             // Se o tipo de pedido for 'accession' e pagamento com saldo
-            return handleAccessionOrder(orderCreated, data, product, planSponsor, userWithBuyer);
+            return handleAccessionOrder("saldo", orderCreated, data, product, planSponsor, userWithBuyer);
         } else {
             // Para outros tipos de pedidos e pagamento com saldo
-            return handleOtherOrderTypes(orderCreated, data, product, userWithBuyer);
+            return handleOtherOrderTypes("saldo", orderCreated, data, product, userWithBuyer);
         }
     }
 
     // Para pedidos com pagamento diferente de saldo
     return orderCreated;
-};
-
-
-const updateOrderStatus = async (orderId, isPaid) => {
-    return await strapi.entityService.update("api::order.order", orderId, {
-        data: {
-            paid: isPaid,
-            dataPagamento: isPaid ? new Date() : null,
-        },
-        populate: "*"
-    });
-};
-
-const handleSubscriptionOrder = async (orderCreated, data, product, userWithBuyer) => {
-    const userBalance = await debitUserBalance(orderCreated, data, product, "Assinatura");
-    if (!userBalance?.status) {
-        return { status: false, error: "Falha no débito do saldo" };
-    }
-
-    const updatedOrder = await updateOrderStatus(orderCreated.id, true);
-    // Outras operações necessárias para 'subscription'
-    // ...
-
-    return updatedOrder;
-};
-
-// const handleAccessionOrder = async (orderCreated, data, product, planSponsor, userWithBuyer) => {
-//     const userBalance = await debitUserBalance(orderCreated, data, product, "Adesão");
-//     if (!userBalance?.status) {
-//         return { status: false, error: "Falha no débito do saldo" };
-//     }
-
-
-//     const updatedOrder = await updateOrderStatus(orderCreated.id, true);
-//     // Outras operações necessárias para 'accession'
-//     // ...
-
-//     console.log("FOII");
-//     console.log(orderCreated);
-//     if (userBalance.status) {
-//         const planoData = {
-//             user: userWithBuyer, 
-//             dataAtivacao: new Date().toISOString(),
-//             statusAtivacao: true,
-//             patrocinador: planSponsor,
-//             //matriz_patrocinador: "ID ou string relevante", // Substitua com o valor adequado
-//             Vencimento: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
-//             order_accession: orderCreated.id
-//         };
-
-//         await strapi.entityService.create("api::plan.plan", {
-//             data: planoData
-//         });
-//     }
-//     return updatedOrder;
-// };
-
-
-const handleAccessionOrder = async (orderCreated, data, product, planSponsor, userWithBuyer) => {
-    console.log("Entrei na config ADESÃO")
-    const userBalance = await debitUserBalance(orderCreated, data, product, "Adesão");
-
-
-    if (!userBalance?.status) {
-        return { status: false, error: "Falha no débito do saldo" };
-    }
-    // Função para encontrar vaga na rede
-    async function encontrarVagaNaRede(idRaiz) {
-        let fila = [idRaiz];
-
-        while (fila.length > 0) {
-            let idAtual = fila.shift();
-            let planAtual = await strapi.entityService.findOne("api::plan.plan", idAtual, { populate: "*" });
-
-            if (planAtual?.matriz_patrocinados.length < 5) {
-                return planAtual;  // Retorna o plan que possui vaga
-            }
-
-            let idsPatrocinados = planAtual.matriz_patrocinados.map(patrocinado => patrocinado.id);
-            fila.push(...idsPatrocinados);
-        }
-
-        throw new Error("A rede está cheia, não há vagas disponíveis.");
-    }
-
-    // Outras operações necessárias para 'accession'
-    // ...
-
-    const updatedOrder = await updateOrderStatus(orderCreated.id, true);
-
-    // Encontrar vaga na rede para o novo plan
-    try {
-
-        if (userBalance.status) {
-        const vagaDisponivel = await encontrarVagaNaRede(planSponsor);
-        const planoData = {
-            user: userWithBuyer,
-            dataAtivacao: new Date().toISOString(),
-            statusAtivacao: true,
-            patrocinador: planSponsor,
-            matriz_patrocinador: vagaDisponivel?.id,
-            Vencimento: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
-            order_accession: orderCreated.id
-        };
-
-        const plan = await strapi.entityService.create("api::plan.plan", {
-            data: planoData
-        });
-
-        const VME = await atribuirPontosVME(plan?.id, 10, orderCreated.id);
-    }
-    } catch (error) {
-        console.error(error.message);
-        return { status: false, error: error.message };
-    }
-
-    return updatedOrder;
-};
-
-
-const handleOtherOrderTypes = async (orderCreated, data, product, userWithBuyer) => {
-    const userBalance = await debitUserBalance(orderCreated, data, product, "Loja Virtual");
-    if (!userBalance?.status) {
-        return { status: false, error: "Falha no débito do saldo" };
-    }
-
-    const updatedOrder = await updateOrderStatus(orderCreated.id, true);
-    // Outras operações necessárias para outros tipos de pedidos
-    // ...
-
-    return updatedOrder;
 };
 
 
@@ -440,18 +321,6 @@ const updateaffOrder = async (oid) => {
 };
 
 
-const debitUserBalance = async (orderCreated, data, product, type) => {
-    return await balanceService.balance(strapi, {
-        user: data.user,
-        mode: "D",
-        amount: product?.regular_price,
-        to: "total",
-        description: "Compra do Pedido: " + orderCreated?.id,
-        type: type,
-        plan: data.plan
-    });
-};
-
 
 module.exports = {
     bodyOrderCreate,
@@ -461,10 +330,5 @@ module.exports = {
     userDatas,
     ordersUser,
     updateaffOrder,
-    debitUserBalance,
-    handleAccessionOrder,
-    handleSubscriptionOrder,
-    handleOtherOrderTypes,
-    updateOrderStatus,
 
 }

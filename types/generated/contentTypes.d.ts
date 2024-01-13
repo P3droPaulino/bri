@@ -936,6 +936,39 @@ export interface ApiExtractExtract extends Schema.CollectionType {
   };
 }
 
+export interface ApiGraduationGraduation extends Schema.CollectionType {
+  collectionName: 'graduations';
+  info: {
+    singularName: 'graduation';
+    pluralName: 'graduations';
+    displayName: 'Graduation';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    nome: Attribute.String;
+    icon: Attribute.Media;
+    vme: Attribute.Integer;
+    meta: Attribute.Integer;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::graduation.graduation',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::graduation.graduation',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiOrderOrder extends Schema.CollectionType {
   collectionName: 'orders';
   info: {
@@ -995,6 +1028,7 @@ export interface ApiOrderOrder extends Schema.CollectionType {
       'oneToOne',
       'api::plan.plan'
     >;
+    plan: Attribute.Relation<'api::order.order', 'oneToOne', 'api::plan.plan'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1063,6 +1097,12 @@ export interface ApiPlanPlan extends Schema.CollectionType {
       'api::plan.plan',
       'oneToOne',
       'api::order.order'
+    >;
+    dataQualificacao: Attribute.DateTime;
+    graduation: Attribute.Relation<
+      'api::plan.plan',
+      'oneToOne',
+      'api::graduation.graduation'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -1375,6 +1415,7 @@ declare module '@strapi/types' {
       'api::bri.bri': ApiBriBri;
       'api::category.category': ApiCategoryCategory;
       'api::extract.extract': ApiExtractExtract;
+      'api::graduation.graduation': ApiGraduationGraduation;
       'api::order.order': ApiOrderOrder;
       'api::plan.plan': ApiPlanPlan;
       'api::product.product': ApiProductProduct;

@@ -71,15 +71,22 @@ module.exports = {
       config: {
         description: "Contagem qualificação",
       },
+    },
+    {
+      method: 'POST',
+      path: '/bri/rateiobonus',
+      handler: 'bri.rateiobonus',
+      config: {
+        description: "Exibe o valor do rateio bônus de um pedido",
+      },
+    },
+    {
+      method: 'GET',
+      path: '/bri/pontosMatriz/:id',
+      handler: 'bri.pontosMatriz',
+      config: {
+        description: "Visualizar pontos da graduação",
+      },
     }
-
-    // {
-    //   method: 'POST',
-    //   path: '/bri/ordersaldo',
-    //   handler: 'bri.createPIX',
-    //   config: {
-    //     description: "Inserir ou Debitar SALDO",
-    //   },
-    // }
   ],
 };

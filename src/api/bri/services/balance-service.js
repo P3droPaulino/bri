@@ -11,8 +11,18 @@ module.exports = {
       if (typeof type !== 'string') hasError.push("campo 'type' deve ser uma string");
       if (typeof mode !== 'string' || !['D', 'C'].includes(mode)) hasError.push("campo 'mode' deve ser 'D' ou 'C'");
       if (typeof to !== 'string' || !['available', 'blocked', 'total'].includes(to)) hasError.push("campo 'to' deve ser 'available', 'blocked' ou 'total'");
+
+      console.log(
+        "chegou aqui, balance"
+      )
+
+      console.log(user, amount, mode, to, description, type, plan);
   
       if (hasError.length === 0) {
+
+        console.log(
+          "chegou aqui, balance 2"
+        )
         try {
           const filters = {
             filters: {
@@ -41,6 +51,9 @@ module.exports = {
   
           let { balance_available, balance_blocked } = wallet;
   
+          console.log(
+            "chegou aqui, balance 3"
+          )
           // Lógica de atualização do saldo
           if (mode === 'D') {
             const totalBalance = balance_available + balance_blocked;
@@ -63,7 +76,13 @@ module.exports = {
               balance_blocked = Math.max(balance_blocked - amount, 0);
             }
           } else if (mode === 'C') {
+            console.log(
+              "chegou aqui, balance 4"
+            )
             if (to === 'available') {
+              (
+                "chegou aqui, available"
+              )
               balance_available += amount;
             } else if (to === 'blocked') {
               balance_blocked += amount;

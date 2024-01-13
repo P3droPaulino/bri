@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "graduations",
+  "info": {
+    "singularName": "graduation",
+    "pluralName": "graduations",
+    "displayName": "Graduation",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "nome": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "vme": {
+      "type": "integer"
+    },
+    "meta": {
+      "type": "integer"
+    }
+  }
+}
