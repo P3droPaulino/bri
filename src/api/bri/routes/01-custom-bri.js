@@ -87,6 +87,15 @@ module.exports = {
       config: {
         description: "Visualizar pontos da graduação",
       },
-    }
+    },
+    {
+      method: 'GET',
+      path: '/bri/rateio', // ou qualquer outro caminho que você deseje usar
+      handler: 'bri.rateio', // substitua 'nomeDoSeuController' pelo nome real do seu controller
+      config: {
+        description: "Recupera os dados de rateio",
+        // Você pode adicionar aqui outras configurações como autenticação, permissões, etc., conforme necessário
+      },
+    }    
   ],
 };

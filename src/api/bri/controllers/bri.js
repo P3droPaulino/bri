@@ -954,8 +954,102 @@ async pontosMatriz(ctx) {
   console.log("Relatório de pontos com total geral:", relatorioFinal);
 
   return relatorioFinal;
-}
+},
 
+
+/**
+ * Recupera pedidos com base no intervalo de datas de pagamento e com o status 'paid' como true.
+ * @param {*} ctx
+ * @method GET
+ */
+async rateio(ctx) {
+  const { dataInicial, dataFinal } = ctx.query;
+
+  let filters = { paid: true }; // Filtrar por pedidos pagos
+
+  if (dataInicial) {
+    filters.dataPagamento = { $gte: new Date(dataInicial) };
+
+    if (dataFinal) {
+      filters.dataPagamento.$lte = new Date(dataFinal);
+    } else {
+      filters.dataPagamento.$lte = new Date(); // Até a data de hoje
+    }
+  }
+
+  const pedidos = await strapi.entityService.findMany('api::order.order', {
+    filters: filters,
+    populate:{
+      rateios_admin: true,
+      rateios_bonus: true,
+      rateios_unilevel: true
+    } // Popula todas as relações associadas
+  });
+
+  let faturamento = 0;
+  let bonus = {};
+  let matriz = {};
+  let administracao = {};
+
+  pedidos.forEach(pedido => {
+    // 1 - Somar o total de todos os pedidos
+    faturamento += pedido.total;
+
+    // 2 - Processar rateios_bonus
+    if (Array.isArray(pedido.rateios_bonus)) {
+      pedido.rateios_bonus.forEach(item => {
+        if (item.status && item.name !== "Pontos Graduação") {
+          const valor = parseFloat(item.value) || 0;
+          bonus[item.name] = (bonus[item.name] || 0) + valor;
+        }
+      });
+    }
+
+    // 3 - Processar rateios_unilevel
+    if (Array.isArray(pedido.rateios_unilevel)) {
+      pedido.rateios_unilevel.forEach(item => {
+        if (item.status) {
+          const valor = parseFloat(item.value) || 0;
+          matriz[item.name] = (matriz[item.name] || 0) + valor;
+        }
+      });
+    }
+
+    // 4 - Processar rateios_admin
+    if (Array.isArray(pedido.rateios_admin)) {
+      pedido.rateios_admin.forEach(item => {
+        if (item.status) {
+          const valor = parseFloat(item.value) || 0;
+          administracao[item.name] = (administracao[item.name] || 0) + valor;
+        }
+      });
+    }
+  });
+
+  // Ordenar e formatar os valores
+  const ordenarEFormatar = (objeto) => {
+    const chavesOrdenadas = Object.keys(objeto).sort();
+    const objetoOrdenado = {};
+    chavesOrdenadas.forEach(chave => {
+      if (objeto[chave] > 0) {
+        objetoOrdenado[chave] = `${objeto[chave].toFixed(2).replace('.', ',')}`;
+      }
+    });
+    return objetoOrdenado;
+  };
+
+  const bonusOrdenado = ordenarEFormatar(bonus);
+  const matrizOrdenada = ordenarEFormatar(matriz);
+  const administracaoOrdenada = ordenarEFormatar(administracao);
+  const faturamentoFormatado = `${faturamento.toFixed(2).replace('.', ',')}`;
+
+  return {
+    Bônus: bonusOrdenado,
+    Matriz: matrizOrdenada,
+    Administração: administracaoOrdenada,
+    Faturamento: faturamentoFormatado
+  };
+}
 
 
 
