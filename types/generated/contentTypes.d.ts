@@ -657,6 +657,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'api::plan.plan'
     >;
     clienteCode_asaas: Attribute.String;
+    document_issue: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1233,6 +1234,44 @@ export interface ApiProductProduct extends Schema.CollectionType {
   };
 }
 
+export interface ApiReportReport extends Schema.CollectionType {
+  collectionName: 'reports';
+  info: {
+    singularName: 'report';
+    pluralName: 'reports';
+    displayName: 'Reports';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    type: Attribute.Enumeration<
+      [
+        'Constru\u00E7\u00E3o Fila',
+        'Pagamento Fila',
+        'Pagamento Gradua\u00E7\u00E3o'
+      ]
+    >;
+    dados: Attribute.JSON;
+    date: Attribute.DateTime;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::report.report',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::report.report',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiSupportMaterialSupportMaterial
   extends Schema.CollectionType {
   collectionName: 'support_materials';
@@ -1419,6 +1458,7 @@ declare module '@strapi/types' {
       'api::order.order': ApiOrderOrder;
       'api::plan.plan': ApiPlanPlan;
       'api::product.product': ApiProductProduct;
+      'api::report.report': ApiReportReport;
       'api::support-material.support-material': ApiSupportMaterialSupportMaterial;
       'api::ticket.ticket': ApiTicketTicket;
       'api::vme-point.vme-point': ApiVmePointVmePoint;

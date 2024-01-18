@@ -7,7 +7,7 @@
 
 const { createCoreController } = require('@strapi/strapi').factories;
 const axios = require('axios');
-const { empty, getFileById, getCurrentDomain, getUserMetas, getRateioBonus, pagoDentroMesAtual, removerCamposSensiveis } = require('../../bri/controllers/utils');
+const { empty, getFileById, getCurrentDomain, getUserMetas, getRateioBonus, pagoDentroMesAtual, removerCamposSensiveis, obterDadosFilaUnica, obterDadosModificadosRelatorio } = require('../../bri/controllers/utils');
 const balanceService = require('../services/balance-service');
 
 
@@ -46,142 +46,152 @@ module.exports = createCoreController('api::bri.bri', ({ strapi }) => ({
      * @method GET
      */
   async plansFilaUnicaGET(ctx) {
-    const query = ctx.query;
-    const user = ctx.state.user;
-    const { origin, protocol } = ctx.request;
-    console.log("origin", origin);
-    const baseUrl = `${protocol}://${ctx.request.header.host}`; // BASE URL STRAPI
-    const filas = [];
-    const datas = {};
-    const fila_unica_acum = [];
-    query.qualificados // ?qualificados=true
-    // Obter todos os planos
-    const plans = await strapi.entityService.findMany("api::plan.plan", {
-      populate: "*",
-    });
+    // const query = ctx.query;
+    // const user = ctx.state.user;
+    // const { origin, protocol } = ctx.request;
+    // console.log("origin", origin);
+    // const baseUrl = `${protocol}://${ctx.request.header.host}`; // BASE URL STRAPI
+    // const filas = [];
+    // const datas = {};
+    // const fila_unica_acum = [];
+    // query.qualificados // ?qualificados=true
+    // // Obter todos os planos
+    // const plans = await strapi.entityService.findMany("api::plan.plan", {
+    //   populate: "*",
+    // });
 
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
+    // const currentDate = new Date();
+    // const currentMonth = currentDate.getMonth();
 
-    let montanteFila = 0;
+    // let montanteFila = 0;
 
-    for (const plan of plans) {
-      const { dataAtivacao, order_accession, orders_subscription, statusAtivacao } = plan;
-      if (statusAtivacao && dataAtivacao) {
-        const paymentDate = await pagoDentroMesAtual(plan);
-        if (paymentDate == true) {
-          let rateioBonusFilho = 0;
-          console.log("pago no mês: ", paymentDate);
+    // for (const plan of plans) {
+    //   const { dataAtivacao, order_accession, orders_subscription, statusAtivacao } = plan;
+    //   if (statusAtivacao && dataAtivacao) {
+    //     const paymentDate = await pagoDentroMesAtual(plan);
+    //     if (paymentDate == true) {
+    //       let rateioBonusFilho = 0;
+    //       console.log("pago no mês: ", paymentDate);
 
-          console.log("----------------PLAN AQUI-----------------");
-          //console.log(plan);
-          //const maiorDataAtivacaoSubscription = await obterMaiorDataAtivacao(plan);
-          //const object_rateios_bonus_pai = await getRateioBonusFila(plan);
+    //       console.log("----------------PLAN AQUI-----------------");
+    //       //console.log(plan);
+    //       //const maiorDataAtivacaoSubscription = await obterMaiorDataAtivacao(plan);
+    //       //const object_rateios_bonus_pai = await getRateioBonusFila(plan);
 
-          if (orders_subscription && orders_subscription.length > 0) {
-            // Obter "rateios_bonus" do pedido filho com o maior ID
-            const pedido_subscription = orders_subscription;
-            const pedidosubscriptionMaiorId = pedido_subscription.reduce((maxOrder, currentOrder) => {
-              return currentOrder.id > maxOrder.id ? currentOrder : maxOrder;
-            }, pedido_subscription[0]);
+    //       if (orders_subscription && orders_subscription.length > 0) {
+    //         // Obter "rateios_bonus" do pedido filho com o maior ID
+    //         const pedido_subscription = orders_subscription;
+    //         const pedidosubscriptionMaiorId = pedido_subscription.reduce((maxOrder, currentOrder) => {
+    //           return currentOrder.id > maxOrder.id ? currentOrder : maxOrder;
+    //         }, pedido_subscription[0]);
 
-            const object_subscription = getRateioBonus(pedidosubscriptionMaiorId, 'fila_unica');
+    //         const object_subscription = getRateioBonus(pedidosubscriptionMaiorId, 'fila_unica');
 
-            const valueSubscription = parseFloat(object_subscription?.value);
-            if (!isNaN(valueSubscription)) {
-              montanteFila += valueSubscription;
-            }
-          } else if (order_accession) {
-            // Obter "rateios_bonus" do pedido pai usando a função
-            const object_accession = getRateioBonus(order_accession, 'fila_unica');
+    //         const valueSubscription = parseFloat(object_subscription?.value);
+    //         if (!isNaN(valueSubscription)) {
+    //           montanteFila += valueSubscription;
+    //         }
+    //       } else if (order_accession) {
+    //         // Obter "rateios_bonus" do pedido pai usando a função
+    //         const object_accession = getRateioBonus(order_accession, 'fila_unica');
 
-            const valueAccession = parseFloat(object_accession?.value);
-            if (!isNaN(valueAccession)) {
-              montanteFila += valueAccession;
-            }
-          }
-        }
-      }
-    }
-
-
-    //total de cotas
-    let totalCotas = 0;
-
-    for (let i = 0; i < plans.length; i++) {
-      if (plans[i].qualificado === true) {
-        for (let j = i + 1; j < plans.length; j++) {
-          if (plans[j]?.statusAtivacao === true && new Date(plans[j]?.dataAtivacao).getMonth() === currentMonth) {
-            totalCotas++;
-          }
-
-        }
-      }
-    }
-
-    console.log(totalCotas);
-    console.log(montanteFila);
+    //         const valueAccession = parseFloat(object_accession?.value);
+    //         if (!isNaN(valueAccession)) {
+    //           montanteFila += valueAccession;
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
 
 
-    //calcular fator
-    let fator = montanteFila / totalCotas;
-    fator = [Infinity, null, undefined].includes(fator) ? 0 : fator;
+    // //total de cotas
+    // let totalCotas = 0;
 
-    console.log("FILA UNICA DATAS::", fator, montanteFila, totalCotas);
-    // Continue with the rest of your code after the forEach loop.
-    if (plans && plans.length > 0) {
-      for (let i = 0; i < plans.length; i++) {
-        const item = plans[i];
-        // console.log("Orders", item?.order_type);
-        let position = i + 1;
-        let userMetas = await getUserMetas(item?.user?.id || 0);
-        //console.log("usermetas: ", userMetas);
-         let avatarUrl = userMetas?.avatar?.[0]?.url || null;
-         avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user.jpg" : avatarUrl;
-         console.log("Avatar URL:", avatarUrl);
+    // for (let i = 0; i < plans.length; i++) {
+    //   if (plans[i].qualificado === true) {
+    //     for (let j = i + 1; j < plans.length; j++) {
+    //       if (plans[j]?.statusAtivacao === true && new Date(plans[j]?.dataAtivacao).getMonth() === currentMonth) {
+    //         totalCotas++;
+    //       }
 
-        let lastId = plans[i - 1]?.id || "";
+    //     }
+    //   }
+    // }
 
-        let countPaidItems = 0; // Inicializa a contagem de itens pagos abaixo do item atual
-        // Itera sobre os itens abaixo do item atual
-        for (let j = i + 1; j < plans.length; j++) {
-          if (plans[j]?.statusAtivacao && new Date(plans[j]?.dataAtivacao).getMonth() === currentMonth) {
-            countPaidItems++;
-          }
-        }
-
-        let ganhoEstimado = 0; // Inicializa o ganho estimado como null
-
-        if (item.qualificado) {
-          ganhoEstimado = fator * countPaidItems; // Calcula o ganho estimado quando o item é qualificado
-        }
+    // console.log(totalCotas);
+    // console.log(montanteFila);
 
 
+    // //calcular fator
+    // let fator = montanteFila / totalCotas;
+    // fator = [Infinity, null, undefined].includes(fator) ? 0 : fator;
 
-        filas.push({
-            "name": item?.user?.fullName?.split(" ")[0] || "__FULLNAME__",
-           "imageUrl": baseUrl + avatarUrl,
-           "area": item?.name || "--",
-          // "profileUrl": `${baseUrl}/api/users/${item?.user?.id || 0}`,
-          "office": item?.user?.username,//userMetas?.role?.name || "__USUARIO__",
-          "tags": "Mi2",
-          // "isLoggedUser": false,
-          "positionName": String(position),
-          "id": String(item?.id),
-          "parentId": String(lastId),
-          "size": "",
-          "qualificado": item?.qualificado,
-          "contagem_abaixo": countPaidItems,
-          "montante_fila": montanteFila,
-          "total_cotas": totalCotas,
-          "fator": fator,
-          "ganhoEstimado": ganhoEstimado,
-        });
-      }
-    }
+    // console.log("FILA UNICA DATAS::", fator, montanteFila, totalCotas);
+    // // Continue with the rest of your code after the forEach loop.
+    // if (plans && plans.length > 0) {
+    //   for (let i = 0; i < plans.length; i++) {
+    //     const item = plans[i];
+    //     // console.log("Orders", item?.order_type);
+    //     let position = i + 1;
+    //     let userMetas = await getUserMetas(item?.user?.id || 0);
+    //     //console.log("usermetas: ", userMetas);
+    //      let avatarUrl = userMetas?.avatar?.[0]?.url || null;
+    //      avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user.jpg" : avatarUrl;
+    //      console.log("Avatar URL:", avatarUrl);
+
+    //     let lastId = plans[i - 1]?.id || "";
+
+    //     let countPaidItems = 0; // Inicializa a contagem de itens pagos abaixo do item atual
+    //     // Itera sobre os itens abaixo do item atual
+    //     for (let j = i + 1; j < plans.length; j++) {
+    //       if (plans[j]?.statusAtivacao && new Date(plans[j]?.dataAtivacao).getMonth() === currentMonth) {
+    //         countPaidItems++;
+    //       }
+    //     }
+
+    //     let ganhoEstimado = 0; // Inicializa o ganho estimado como null
+
+    //     if (item.qualificado) {
+    //       ganhoEstimado = fator * countPaidItems; // Calcula o ganho estimado quando o item é qualificado
+    //     }
+
+
+
+    //     filas.push({
+    //         "name": item?.user?.fullName?.split(" ")[0] || "__FULLNAME__",
+    //        "imageUrl": baseUrl + avatarUrl,
+    //        "area": item?.name || "--",
+    //       // "profileUrl": `${baseUrl}/api/users/${item?.user?.id || 0}`,
+    //       "office": item?.user?.username,//userMetas?.role?.name || "__USUARIO__",
+    //       "tags": "Mi2",
+    //       // "isLoggedUser": false,
+    //       "positionName": String(position),
+    //       "id": String(item?.id),
+    //       "parentId": String(lastId),
+    //       "size": "",
+    //       "qualificado": item?.qualificado,
+    //       "contagem_abaixo": countPaidItems,
+    //       "montante_fila": montanteFila,
+    //       "total_cotas": totalCotas,
+    //       "fator": fator,
+    //       "ganhoEstimado": ganhoEstimado,
+    //     });
+    //   }
+    // }
+    // return filas;
+
+
+    //const filas = await obterDadosFilaUnica();
+    const filas = await obterDadosModificadosRelatorio();
+    // Retorna o resultado para o chamador da rota
     return filas;
+
+
   },
 
+
+  
 
   // /**
   //   * Inserir ou Debitar saldo de usuário
@@ -326,6 +336,7 @@ async matrizview(ctx) {
       const plano = await strapi.entityService.findOne("api::plan.plan", idPlano, { populate: "*" });
       if (!plano) return;
 
+      // @ts-ignore
       let userMetas = await getUserMetas(plano?.user?.id || 0);
       let avatarUrl = userMetas?.avatar?.[0]?.url || null;
       avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user.jpg" : avatarUrl;
@@ -606,6 +617,7 @@ async createPIX(ctx) {
 
   //console.log(userUpdate);
   try {
+    // @ts-ignore
     if (!userUpdate?.clienteCode_asaas || userUpdate?.clienteCode_asaas === null || userUpdate?.clienteCode_asaas === 0) {
       console.log("Não existe conta asaas, criando...");
 
@@ -757,6 +769,7 @@ async createPIX(ctx) {
 
     }else if (userUpdate?.clienteCode_asaas && orderUpdate?.gateway_cobranca){
 
+      // @ts-ignore
       const paymentQR = await axios.get(urlAsaas + '/v3/payments/' + orderUpdate?.gateway_cobranca?.id + '/pixQrCode', {
         headers: {
           accept: 'application/json',
@@ -980,6 +993,7 @@ async rateio(ctx) {
   const pedidos = await strapi.entityService.findMany('api::order.order', {
     filters: filters,
     populate:{
+      // @ts-ignore
       rateios_admin: true,
       rateios_bonus: true,
       rateios_unilevel: true
@@ -1049,8 +1063,29 @@ async rateio(ctx) {
     Administração: administracaoOrdenada,
     Faturamento: faturamentoFormatado
   };
-}
+},
 
+/**
+ * Retorna os dados filtrados por id.
+ * @param {*} ctx
+ * @method GET
+ */
+async filaFiltradaPorId(ctx) {
+  const { id } = ctx.params; // Pega o id passado na URL
+
+  // Supondo que esta função retorne o array de dados que você mostrou
+  const dados = await obterDadosModificadosRelatorio();
+
+  // Filtra para retornar apenas os dados que correspondem ao id
+  const dadosFiltrados = dados.filter(dado => dado.id === id);
+
+  if (dadosFiltrados.length === 0) {
+    // Se não encontrar dados para o id fornecido, retorna um erro ou mensagem apropriada
+    ctx.throw(404, 'Nenhum dado encontrado para o ID fornecido.');
+  }
+
+  return dadosFiltrados[0]; // Retorna o primeiro elemento do array filtrado
+}
 
 
 

@@ -311,6 +311,18 @@ const handleSubscriptionOrder = async (mode, orderCreated, data, product, userWi
 //     return updatedOrder;
 // };
 
+const axios = require('axios');
+
+async function enviarDadosParaWebhook(dados) {
+    const url = 'https://webhook.site/e0c248fa-2937-4a3c-a74d-c5f2e03418a0';
+
+    try {
+        const resposta = await axios.post(url, dados);
+        console.log('Dados enviados com sucesso:', resposta.data);
+    } catch (erro) {
+        console.error('Erro ao enviar dados:', erro);
+    }
+}
 
 const handleAccessionOrder = async (mode, orderCreated, data, product, planSponsor, userWithBuyer) => {
   console.log("Entrei na config ADESÃO")
@@ -383,13 +395,25 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
       console.log("aqui vai os dados do plano criado:");
       console.log(plan);
       const qualificar = await qualificacaoplan(plan?.id);
+
+      const salvarFilaUnica = salvarFila();
+      console.log("filas aqui");
+      //console.log(filas);
+      //const dataFila = [filas]
+
     }
   } catch (error) {
     console.error(error.message);
     return { status: false, error: error.message };
   }
 
+
+
+
   return updatedOrder;
+
+
+  
 };
 
 //Operações quando for vendido na loja geral
@@ -417,6 +441,59 @@ const handleOtherOrderTypes = async (mode, orderCreated, data, product, userWith
 
   return updatedOrder;
 };
+
+
+async function salvarFila() {
+  try {
+    const filas = await obterDadosFilaUnica();
+    if (filas) {
+      // Verifica se já existe um report do tipo "Construção Fila" no mês atual
+      const inicioDoMes = new Date();
+      inicioDoMes.setDate(1);
+      inicioDoMes.setHours(0, 0, 0, 0);
+
+      const fimDoMes = new Date(inicioDoMes.getFullYear(), inicioDoMes.getMonth() + 1, 0, 23, 59, 59, 999);
+
+      const reportsExistentes = await strapi.entityService.findMany("api::report.report", {
+        filters: {
+          type: "Construção Fila",
+          date: {
+            $gte: inicioDoMes,
+            $lte: fimDoMes
+          }
+        }
+      });
+
+      let report;
+      if (reportsExistentes && reportsExistentes.length > 0) {
+        // Atualiza o report existente
+        const reportId = reportsExistentes[0].id;
+        report = await strapi.entityService.update("api::report.report", reportId, {
+          data: {
+            dados: filas,
+            date: new Date() // Atualiza a data
+          }
+        });
+      } else {
+        // Cria um novo report
+        report = await strapi.entityService.create("api::report.report", {
+          data: {
+            type: "Construção Fila",
+            dados: filas,
+            date: new Date()
+          }
+        });
+      }
+
+      enviarDadosParaWebhook(filas);
+    }
+  } catch (error) {
+    console.error('Erro ao salvar no Strapi:', error);
+    throw error;
+  }
+}
+
+
 
 const debitUserBalance = async (orderCreated, data, product, type) => {
   return await balanceService.balance(strapi, {
@@ -580,6 +657,203 @@ async function qualificacaoplan(id) {
 }
 
 
+async function obterDadosFilaUnica() {
+  //const query = ctx.query;
+  //const user = ctx.state.user;
+  //const { origin, protocol } = ctx.request;
+  //console.log("origin", origin);
+  const baseUrl = `https://topinfinit.com.br`; // BASE URL STRAPI
+  const filas = [];
+  const datas = {};
+  const fila_unica_acum = [];
+  //query.qualificados // ?qualificados=true
+  // Obter todos os planos
+  const plans = await strapi.entityService.findMany("api::plan.plan", {
+    populate: "*",
+  });
+
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+
+  let montanteFila = 0;
+
+  for (const plan of plans) {
+    const { dataAtivacao, order_accession, orders_subscription, statusAtivacao } = plan;
+    if (statusAtivacao && dataAtivacao) {
+      const paymentDate = await pagoDentroMesAtual(plan);
+      if (paymentDate == true) {
+        let rateioBonusFilho = 0;
+        //console.log("pago no mês: ", paymentDate);
+
+       // console.log("----------------PLAN AQUI-----------------");
+        //console.log(plan);
+        //const maiorDataAtivacaoSubscription = await obterMaiorDataAtivacao(plan);
+        //const object_rateios_bonus_pai = await getRateioBonusFila(plan);
+
+        if (orders_subscription && orders_subscription.length > 0) {
+          // Obter "rateios_bonus" do pedido filho com o maior ID
+          const pedido_subscription = orders_subscription;
+          const pedidosubscriptionMaiorId = pedido_subscription.reduce((maxOrder, currentOrder) => {
+            return currentOrder.id > maxOrder.id ? currentOrder : maxOrder;
+          }, pedido_subscription[0]);
+
+          const object_subscription = getRateioBonus(pedidosubscriptionMaiorId, 'fila_unica');
+
+          const valueSubscription = parseFloat(object_subscription?.value);
+          if (!isNaN(valueSubscription)) {
+            montanteFila += valueSubscription;
+          }
+        } else if (order_accession) {
+          // Obter "rateios_bonus" do pedido pai usando a função
+          const object_accession = getRateioBonus(order_accession, 'fila_unica');
+
+          const valueAccession = parseFloat(object_accession?.value);
+          if (!isNaN(valueAccession)) {
+            montanteFila += valueAccession;
+          }
+        }
+      }
+    }
+  }
+
+
+  //total de cotas
+  let totalCotas = 0;
+
+  for (let i = 0; i < plans.length; i++) {
+    if (plans[i].qualificado === true) {
+      for (let j = i + 1; j < plans.length; j++) {
+        if (plans[j]?.statusAtivacao === true && new Date(plans[j]?.dataAtivacao).getMonth() === currentMonth) {
+          totalCotas++;
+        }
+
+      }
+    }
+  }
+
+  //console.log(totalCotas);
+  //console.log(montanteFila);
+
+
+  //calcular fator
+  let fator = montanteFila / totalCotas;
+  fator = [Infinity, null, undefined].includes(fator) ? 0 : fator;
+
+  //console.log("FILA UNICA DATAS::", fator, montanteFila, totalCotas);
+  // Continue with the rest of your code after the forEach loop.
+  if (plans && plans.length > 0) {
+    for (let i = 0; i < plans.length; i++) {
+      const item = plans[i];
+      // console.log("Orders", item?.order_type);
+      let position = i + 1;
+      let userMetas = await getUserMetas(item?.user?.id || 0);
+      //console.log("usermetas: ", userMetas);
+       let avatarUrl = userMetas?.avatar?.[0]?.url || null;
+       avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user.jpg" : avatarUrl;
+       //console.log("Avatar URL:", avatarUrl);
+
+      let lastId = plans[i - 1]?.id || "";
+
+      let countPaidItems = 0; // Inicializa a contagem de itens pagos abaixo do item atual
+      // Itera sobre os itens abaixo do item atual
+      for (let j = i + 1; j < plans.length; j++) {
+        if (plans[j]?.statusAtivacao && new Date(plans[j]?.dataAtivacao).getMonth() === currentMonth) {
+          countPaidItems++;
+        }
+      }
+
+      let ganhoEstimado = 0; // Inicializa o ganho estimado como null
+
+      if (item.qualificado) {
+        ganhoEstimado = fator * countPaidItems; // Calcula o ganho estimado quando o item é qualificado
+      }
+
+
+
+      filas.push({
+          "name": item?.user?.fullName?.split(" ")[0] || "__FULLNAME__",
+         "imageUrl": baseUrl + avatarUrl,
+         "area": item?.name || "--",
+        // "profileUrl": `${baseUrl}/api/users/${item?.user?.id || 0}`,
+        "office": item?.user?.username,//userMetas?.role?.name || "__USUARIO__",
+        "tags": "Mi2",
+        // "isLoggedUser": false,
+        "positionName": String(position),
+        "id": String(item?.id),
+        "parentId": String(lastId),
+        "size": "",
+        "qualificado": item?.qualificado,
+        "contagem_abaixo": countPaidItems,
+        "montante_fila": montanteFila,
+        "total_cotas": totalCotas,
+        "fator": fator,
+        "ganhoEstimado": ganhoEstimado,
+      });
+    }
+  }
+ return filas;
+ //return JSON.stringify(filas);
+}
+
+async function obterDadosModificadosRelatorio() {
+    try {
+      const dataAtual = new Date();
+      const inicioDoMesAtual = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1);
+      const inicioDoMesAnterior = new Date(dataAtual.getFullYear(), dataAtual.getMonth() - 1, 1);
+  
+      let relatorio;
+      // Busca o relatório do mês atual
+      const relatoriosAtual = await strapi.entityService.findMany("api::report.report", {
+        filters: {
+          type: "Construção Fila",
+          date: {
+            $gte: inicioDoMesAtual
+          }
+        },
+        sort: { date: 'desc' },
+        limit: 1
+      });
+  
+      if (relatoriosAtual && relatoriosAtual.length > 0) {
+        // Se encontrou relatório do mês atual, retorna os dados sem modificação
+        relatorio = relatoriosAtual[0];
+        return relatorio.dados;
+      } else {
+        // Busca o relatório do mês anterior
+        const relatoriosAnterior = await strapi.entityService.findMany("api::report.report", {
+          filters: {
+            type: "Construção Fila",
+            date: {
+              $gte: inicioDoMesAnterior,
+              $lt: inicioDoMesAtual
+            }
+          },
+          sort: { date: 'desc' },
+          limit: 1
+        });
+  
+        if (relatoriosAnterior && relatoriosAnterior.length > 0) {
+          relatorio = relatoriosAnterior[0];
+          // Modifica os valores das chaves especificadas para "0" nos dados do mês anterior
+          const dadosModificados = relatorio.dados.map(dado => ({
+            ...dado,
+            contagem_abaixo: "0",
+            montante_fila: "0",
+            total_cotas: "0",
+            fator: "0",
+            ganhoEstimado: "0"
+          }));
+          return dadosModificados;
+        }
+      }
+      return []; // Retorna um array vazio se nenhum relatório foi encontrado
+    } catch (error) {
+      console.error('Erro ao obter dados do relatório:', error);
+      throw error;
+    }
+  }
+  
+
 
 
 module.exports = {
@@ -601,4 +875,6 @@ module.exports = {
   getRateioMatriz,
   atribuirBonusMatriz,
   qualificacaoplan,
+  obterDadosFilaUnica,
+  obterDadosModificadosRelatorio,
 }

@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "reports",
+  "info": {
+    "singularName": "report",
+    "pluralName": "reports",
+    "displayName": "Reports",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "Construção Fila",
+        "Pagamento Fila",
+        "Pagamento Graduação"
+      ]
+    },
+    "dados": {
+      "type": "json"
+    },
+    "date": {
+      "type": "datetime"
+    }
+  }
+}

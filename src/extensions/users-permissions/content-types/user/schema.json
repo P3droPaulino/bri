@@ -171,6 +171,9 @@
     },
     "clienteCode_asaas": {
       "type": "string"
+    },
+    "document_issue": {
+      "type": "string"
     }
   }
 }

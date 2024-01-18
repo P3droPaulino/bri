@@ -96,6 +96,15 @@ module.exports = {
         description: "Recupera os dados de rateio",
         // Você pode adicionar aqui outras configurações como autenticação, permissões, etc., conforme necessário
       },
-    }    
+    },
+    {
+      method: 'GET',
+      path: '/bri/fila-unica/plan/:id', // ou qualquer outro caminho que você deseje usar
+      handler: 'bri.filaFiltradaPorId', // substitua 'nomeDoSeuController' pelo nome real do seu controller
+      config: {
+        description: "Recupera os dados da fila única, filtrados por id.",
+        // Você pode adicionar aqui outras configurações como autenticação, permissões, etc., conforme necessário
+      },
+    }
   ],
 };
