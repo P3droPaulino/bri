@@ -328,6 +328,7 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
   console.log("Entrei na config ADESÃO")
 
   if (mode === "saldo") {
+    console.log("Pagamento via saldo!")
     const userBalance = await debitUserBalance(orderCreated, data, product, "Adesão");
 
     if (!userBalance?.status) {
@@ -372,6 +373,8 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
         order_accession: orderCreated.id
       };
 
+      console.log("planoData");
+      console.log(planoData);
       const plan = await strapi.entityService.create("api::plan.plan", {
         data: planoData
       });

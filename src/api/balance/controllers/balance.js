@@ -19,14 +19,17 @@ module.exports = createCoreController('api::balance.balance', ({ strapi }) => ({
     const hasFilters = query && query.filters ? true : false;
     const filters = {
       filters: {
-        user: {
+        users: {
           id: { $eq: me.id },
         },
-      },
-      populate: { user: true },
+      }
     };
+
+
+
     
     
+    console.log(me);
 
 
     try {
@@ -45,7 +48,7 @@ module.exports = createCoreController('api::balance.balance', ({ strapi }) => ({
 
     // @ts-ignore
     const balances = await strapi.entityService.findMany('api::balance.balance', filters);
-
+    console.log(balances);
     // Adiciona a chave "balance_total" a cada item no array
     const balancesWithTotal = balances.map(balance => ({
       ...balance,
