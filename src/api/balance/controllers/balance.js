@@ -46,9 +46,15 @@ module.exports = createCoreController('api::balance.balance', ({ strapi }) => ({
       console.log();
     }
 
+
+  
     // @ts-ignore
     const balances = await strapi.entityService.findMany('api::balance.balance', filters);
     console.log(balances);
+
+    if (balances.length === 0) {
+      return [{ balance_total: 0 }];
+    }
     // Adiciona a chave "balance_total" a cada item no array
     const balancesWithTotal = balances.map(balance => ({
       ...balance,
