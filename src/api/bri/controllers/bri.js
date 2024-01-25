@@ -1085,8 +1085,64 @@ async filaFiltradaPorId(ctx) {
   }
 
   return dadosFiltrados[0]; // Retorna o primeiro elemento do array filtrado
-}
+},
 
+/**
+   * Filtrar user por nome de usuário
+   * @source <https://docs.strapi.io/dev-docs/api/entity-service/crud#example-1>
+   * @method GET
+  */
+async getUserBy(ctx) {
+  const { username } = ctx.request.query;
+  const usernameCleaned = username ? username.replaceAll("/", "") : "";
+  const options = {
+    fields: ['id', 'username', 'email', 'fullName', 'active'],
+    filters: {
+      username: {
+        $eqi: usernameCleaned,
+      },
+    },
+    // populate: { category: true },
+  };
+  // console.log("PARAMS", query, options);
+  const entry = await strapi.entityService.findMany('plugin::users-permissions.user', options);
+  const isNot = [{
+    "id": 0,
+    "username": "Inexistente",
+    "fullName": "Inexistente",
+    "active": false,
+  }];
+  console.log("entry User", usernameCleaned, entry);
+  return entry.length > 0 ? entry[0] : isNot[0];
+},
+/**
+ * Filtrar user por nome de usuário
+ * @source <https://docs.strapi.io/dev-docs/api/entity-service/crud#example-1>
+ * @method GET
+*/
+async getUserByEmail(ctx) {
+  const { email } = ctx.request.query;
+  const emailCleaned = email ? email.replaceAll("/", "") : "";
 
+  const options = {
+    fields: ['id', 'username', 'email', 'fullName', 'active'],
+    filters: {
+      email: {
+        $eqi: emailCleaned,
+      },
+    },
+    // populate: { category: true },
+  };
+  // console.log("PARAMS", query, options);
+  const entry = await strapi.entityService.findMany('plugin::users-permissions.user', options);
+  const isNot = [{
+    "id": 0,
+    "username": "Inexistente",
+    "fullName": "Inexistente",
+    "active": false,
+  }];
+  console.log("entry Email", emailCleaned, entry);
+  return entry.length > 0 ? entry[0] : isNot[0];
+},
 
 }));

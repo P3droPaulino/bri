@@ -105,6 +105,22 @@ module.exports = {
         description: "Recupera os dados da fila única, filtrados por id.",
         // Você pode adicionar aqui outras configurações como autenticação, permissões, etc., conforme necessário
       },
-    }
-  ],
+    },
+    {
+      method: 'GET',
+      path: '/users/getUserBy',
+      handler: 'bri.getUserBy',
+      config: {
+        description: "Buscar usuario por username",
+      },
+    },
+    {
+      method: 'GET',
+      path: '/users/getUserByEmail',
+      handler: 'bri.getUserByEmail',
+      config: {
+        description: "Buscar usuario por email",
+      },
+    },
+  ]
 };
