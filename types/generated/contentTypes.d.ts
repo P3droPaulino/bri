@@ -658,6 +658,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     >;
     clienteCode_asaas: Attribute.String;
     document_issue: Attribute.String;
+    document_issue_date: Attribute.Date;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
