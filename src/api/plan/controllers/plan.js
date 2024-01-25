@@ -5,6 +5,7 @@
  */
 
 const { createCoreController } = require('@strapi/strapi').factories;
+const { removerCamposSensiveis} = require('../../bri/controllers/utils');
 
 module.exports = createCoreController('api::plan.plan', ({ strapi }) => ({
 
@@ -45,7 +46,15 @@ async me(ctx) {
       console.log();
     }
     const plans = await strapi.entityService.findMany('api::plan.plan', filters);
-    return plans;
+
+    const planosProcessados = plans.map(removerCamposSensiveis);
+
+    const statusGeral = planosProcessados.some(plano => plano.statusAtivacao);
+
+    planosProcessados.push({ statusGeral: statusGeral });
+
+
+    return planosProcessados;
 
   },
 
