@@ -49,9 +49,9 @@ async me(ctx) {
 
     const planosProcessados = plans.map(removerCamposSensiveis);
 
-    const statusGeral = planosProcessados.some(plano => plano.statusAtivacao);
+    //const statusGeral = planosProcessados.some(plano => plano.statusAtivacao);
 
-    planosProcessados.push({ statusGeral: statusGeral });
+    //planosProcessados.push({ statusGeral: statusGeral });
 
 
     return planosProcessados;
