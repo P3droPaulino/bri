@@ -19,86 +19,86 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
    * @path /trigger/96f50e2a8e079eb7f6c7a10b6d77cf013e7d4d58
    * @documentation <https://developers.celcoin.com.br/docs/modelos-de-webhooks-do-pix>
    */
-// async webhook_asaas(ctx) {
-//     const data = ctx.request.body;
-//     const query = ctx.request.query;
-//     const d = {};
+async webhook_asaas(ctx) {
+    const data = ctx.request.body;
+    const query = ctx.request.query;
+    const d = {};
 
-//     d['query'] = query;
-//     d['req'] = ctx.request;
+    d['query'] = query;
+    d['req'] = ctx.request;
   
-//     console.log("BODY RECEBIDO", JSON.stringify(data, null, 2));
+    console.log("BODY RECEBIDO", JSON.stringify(data, null, 2));
 
-//     const returnResponse = [];
-//       const event = data?.event;
-//       const payment = data?.payment?.id;
+    const returnResponse = [];
+      const event = data?.event;
+      const payment = data?.payment?.id;
 
-//       console.log(event);
+      console.log(event);
   
-//     if (event == "PAYMENT_RECEIVED") {
-//       console.log("CONFIRMADO - RECEBIMENTO PIX")
-//       const returnResponse = [];
-//         const orderGET = await strapi.entityService.findMany('api::order.order', {
-//           filters: {
-//             gateway_cobranca: {
-//               $contains: payment
-//             }
-//           },
-//           populate: "*",
-//         });
+    if (event == "PAYMENT_RECEIVED") {
+      console.log("CONFIRMADO - RECEBIMENTO PIX")
+      const returnResponse = [];
+        const orderGET = await strapi.entityService.findMany('api::order.order', {
+          filters: {
+            gateway_cobranca: {
+              $contains: payment
+            }
+          },
+          populate: "*",
+        });
 
-//         console.log("ORDER GET - WEBHOOK:", orderGET);
+        console.log("ORDER GET - WEBHOOK:", orderGET);
 
 
-//         if (orderGET && orderGET.length > 0) {
-//           //console.log("Pedido:", order.id);
-//           for (const order of orderGET) {
-//             //const orderwebhook = await indicacao_direta(order?.id);
-//             const orderSponsor = await orderPatrocinador(order?.user?.id); // ID patrocinador MESTRE
-//             const oid = await LMO(orderSponsor); // Obter ID para derramento
-//             console.log("OID AQUI: ", oid)
-//             const oid2 = order?.order_type == 'accession' ? oid : null;
-//             //const dataAtivacao_pai = order?.order_type == 'subscription' ? order?.pedido_pai?.id : null;
+        if (orderGET && orderGET.length > 0) {
+          //console.log("Pedido:", order.id);
+          for (const order of orderGET) {
+            //const orderwebhook = await indicacao_direta(order?.id);
+            // const orderSponsor = await orderPatrocinador(order?.user?.id); // ID patrocinador MESTRE
+            // const oid = await LMO(orderSponsor); // Obter ID para derramento
+            // console.log("OID AQUI: ", oid)
+            // const oid2 = order?.order_type == 'accession' ? oid : null;
+            //const dataAtivacao_pai = order?.order_type == 'subscription' ? order?.pedido_pai?.id : null;
 
-//             if ((order?.order_type === "subscription")) {
-//               try {
-//                 // Atualizar pedido pai se foi pago
-//                 const orderPai = await strapi.entityService.update("api::order.order", order?.pedido_pai?.id, {
-//                   data: {
-//                     paid: true,
-//                     statusAtivacao: true,
-//                     dataAtivacao: new Date(), // Usado para filtrar na "qualificação"
-//                   },
-//                   populate: "*"
-//                 });
-//                 order_end = orderPai;
-//               } catch (e) {
-//                 console.error("bodyOrderCreate::ERROR", e.message);
-//               }
+            if ((order?.order_type === "subscription")) {
+            //   try {
+            //     // Atualizar pedido pai se foi pago
+            //     const orderPai = await strapi.entityService.update("api::order.order", order?.pedido_pai?.id, {
+            //       data: {
+            //         paid: true,
+            //         statusAtivacao: true,
+            //         dataAtivacao: new Date(), // Usado para filtrar na "qualificação"
+            //       },
+            //       populate: "*"
+            //     });
+            //     order_end = orderPai;
+            //   } catch (e) {
+            //     console.error("bodyOrderCreate::ERROR", e.message);
+            //   }
               
-//             }
+            }
 
-//             console.log("Pedido for:", order.id);
+            console.log("Pedido for:", order.id);
 
 
-//             const orderPUT = await strapi.entityService.update('api::order.order', order.id, {
-//               data: {
-//                 paid: true,
-//                 celcoin_webhook: data,
-//                 dataPagamento: new Date(),
-//                 dataAtivacao: new Date(),
-//                 matriz_patrocinador: oid2,
-//                 statusAtivacao: true,
-//               },
-//             });
-//             returnResponse.push(orderPUT);
-//             //await pagarBonusPontosMatriz(order?.id); // Pagar Pontos e Bônus
-//           }
+            // const orderPUT = await strapi.entityService.update('api::order.order', order.id, {
+            //   data: {
+            //     paid: true,
+            //     celcoin_webhook: data,
+            //     dataPagamento: new Date(),
+            //     dataAtivacao: new Date(),
+            //     matriz_patrocinador: oid2,
+            //     statusAtivacao: true,
+            //   },
+            // });
+            // returnResponse.push(orderPUT);
+            //await pagarBonusPontosMatriz(order?.id); // Pagar Pontos e Bônus
+          }
 
-//         }
-//         return returnResponse;
-//     }
-//     return data;
-//   },
+        }
+        return returnResponse;
+    }
+    return data;
+  },
 
 }));
