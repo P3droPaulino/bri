@@ -237,6 +237,14 @@ const updateOrderStatus = async (orderId, isPaid) => {
   });
 };
 
+const updateUserStatus = async (userId, isPaid) => {
+  return await strapi.entityService.update("api::order.order", userId, {
+    data: {
+      active: isPaid,
+    },
+    populate: "*"
+  });
+};
 const handleSubscriptionOrder = async (mode, orderCreated, data, product, userWithBuyer) => {
 
   if (mode === "saldo") {
@@ -246,6 +254,7 @@ const handleSubscriptionOrder = async (mode, orderCreated, data, product, userWi
     }
   }
   const updatedOrder = await updateOrderStatus(orderCreated.id, true);
+  const updatedUser = await updateUserStatus(orderCreated?.user?.id, true);
   const updateAff = await updateRole(orderCreated?.id);
   // Outras operações necessárias para 'subscription'
   // ...
@@ -330,19 +339,19 @@ async function enviarDadosParaWebhook(dados) {
 const handleAccessionOrder = async (mode, orderCreated, data, product, planSponsor, userWithBuyer) => {
 
 
-  console.log("TODOS OS DADOS AQUI");
-  console.log("-----------------------------------------------------------------------");
-  console.log(mode);
-  console.log(orderCreated);
-  console.log("-----------------------------data-----------------------------------");
-  console.log(data);
-  console.log("-----------------------------product-----------------------------------");
-  console.log(product);
-  console.log("-----------------------------planSponsor-----------------------------------");
-  console.log(planSponsor);
-  console.log("-----------------------------userWithBuyer-----------------------------------");
-  console.log(userWithBuyer);
-  console.log("Entrei na config ADESÃO");
+  // console.log("TODOS OS DADOS AQUI");
+  // console.log("-----------------------------------------------------------------------");
+  // console.log(mode);
+  // console.log(orderCreated);
+  // console.log("-----------------------------data-----------------------------------");
+  // console.log(data);
+  // console.log("-----------------------------product-----------------------------------");
+  // console.log(product);
+  // console.log("-----------------------------planSponsor-----------------------------------");
+  // console.log(planSponsor);
+  // console.log("-----------------------------userWithBuyer-----------------------------------");
+  // console.log(userWithBuyer);
+  // console.log("Entrei na config ADESÃO");
 
   if (mode === "saldo") {
     //console.log("Pagamento via saldo!")
@@ -374,6 +383,7 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
 
 
   const updatedOrder = await updateOrderStatus(orderCreated?.id, true);
+  const updatedUser = await updateUserStatus(orderCreated?.user?.id, true);
 
   const updateAff = await updateRole(orderCreated?.id);
 
