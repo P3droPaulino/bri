@@ -185,7 +185,7 @@ const removerCamposSensiveis = (plano) => {
 async function atribuirPontosVME(idPlano, pontos, order, idPlanoInicial, idEquipe = null) {
   const plano = await strapi.entityService.findOne("api::plan.plan", idPlano, { populate: "matriz_patrocinador" });
 
-  console.log("ENTREI NO VME");
+  //console.log("ENTREI NO VME");
   //console.log(plano);
 
   if (!plano) return;
@@ -208,7 +208,7 @@ async function atribuirPontosVME(idPlano, pontos, order, idPlanoInicial, idEquip
 
   // Se existir um patrocinador na matriz, continuar subindo
   if (plano?.matriz_patrocinador) {
-    console.log("ENTREI NO VME 2")
+    //console.log("ENTREI NO VME 2")
     await atribuirPontosVME(plano?.matriz_patrocinador?.id, pontos, order, idPlanoInicial, idPlano);
   }
 }
@@ -328,10 +328,24 @@ async function enviarDadosParaWebhook(dados) {
 }
 
 const handleAccessionOrder = async (mode, orderCreated, data, product, planSponsor, userWithBuyer) => {
-  console.log("Entrei na config ADESÃO")
+
+
+  console.log("TODOS OS DADOS AQUI");
+  console.log("-----------------------------------------------------------------------");
+  console.log(mode);
+  console.log(orderCreated);
+  console.log("-----------------------------data-----------------------------------");
+  console.log(data);
+  console.log("-----------------------------product-----------------------------------");
+  console.log(product);
+  console.log("-----------------------------planSponsor-----------------------------------");
+  console.log(planSponsor);
+  console.log("-----------------------------userWithBuyer-----------------------------------");
+  console.log(userWithBuyer);
+  console.log("Entrei na config ADESÃO");
 
   if (mode === "saldo") {
-    console.log("Pagamento via saldo!")
+    //console.log("Pagamento via saldo!")
     const userBalance = await debitUserBalance(orderCreated, data, product, "Adesão");
 
     if (!userBalance?.status) {
@@ -378,15 +392,15 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
         order_accession: orderCreated.id
       };
 
-      console.log("planoData");
-      console.log(planoData);
+      //console.log("planoData");
+      //console.log(planoData);
       const plan = await strapi.entityService.create("api::plan.plan", {
         data: planoData
       });
 
 
       //pagar bônus indicação direta
-      console.log("Chamando função de pagamento do BONÛS DE INDICAÇÃO")
+      //console.log("Chamando função de pagamento do BONÛS DE INDICAÇÃO")
       const bonusIndicacao = await paidAcessionBonus(plan.id, orderCreated)
 
 
@@ -400,12 +414,12 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
 
       const VMEBonus = await atribuirBonusMatriz(plan?.id, orderCreated);
 
-      console.log("aqui vai os dados do plano criado:");
-      console.log(plan);
+      //console.log("aqui vai os dados do plano criado:");
+      //console.log(plan);
       const qualificar = await qualificacaoplan(plan?.id);
 
       const salvarFilaUnica = salvarFila();
-      console.log("filas aqui");
+      //console.log("filas aqui");
       //console.log(filas);
       //const dataFila = [filas]
 
@@ -580,7 +594,7 @@ async function atribuirBonusMatriz(idPlano, order, planoInicial, idPlanoInicial,
   // Chamada à função balanceService.balance
   if (nivelAtual > 0 && bonusMatriz.status) {
     //console.log("bonusMatriz");
-    console.log(bonusMatriz);
+    //console.log(bonusMatriz);
     const creditUserBalance = await balanceService.balance(strapi, {
       user: plano?.user.id,
       mode: "C",
@@ -621,7 +635,7 @@ async function qualificacaoplan(id) {
 
 
   if (countIndicacao >= 5 && !planOrder.qualificado) {
-    console.log("-------------------- PLANO QUALIFICADO (" + planOrder.id + ") --------------------");
+   // console.log("-------------------- PLANO QUALIFICADO (" + planOrder.id + ") --------------------");
     const qualificado = await strapi.entityService.update("api::plan.plan", planOrder.id, {
       data: {
         qualificado: true,
@@ -637,8 +651,8 @@ async function qualificacaoplan(id) {
     });
 
 
-    console.log("PLAN PATROCINADOR AQUI -------------------------------------------")
-    console.log(planPatrocinador);
+    //console.log("PLAN PATROCINADOR AQUI -------------------------------------------")
+    //console.log(planPatrocinador);
     const dataAtivacaoPatrocinador = new Date(planPatrocinador.dataAtivacao);
     if (planPatrocinador.statusAtivacao && dataAtivacaoPatrocinador.getMonth() === currentMonth && dataAtivacaoPatrocinador.getFullYear() === currentYear) 
 
@@ -647,12 +661,12 @@ async function qualificacaoplan(id) {
         if (patrocinado.statusAtivacao && dataAtivacao.getMonth() === currentMonth && dataAtivacao.getFullYear() === currentYear) {
           countIndicacaoPatrocinador++;
         } else {
-          console.log("Patrocinador não atingiu a quantidade de ativos do mês");
+          //console.log("Patrocinador não atingiu a quantidade de ativos do mês");
         }
       });
     // Marcar qualificação como verdadeira se houver pelo menos 5 qualificados
     if (countIndicacaoPatrocinador >= 5 && !planPatrocinador.qualificado) {
-      console.log("-------------------- PATROCINADOR QUALIFICADO (" + planPatrocinador.id + ") --------------------");
+      //console.log("-------------------- PATROCINADOR QUALIFICADO (" + planPatrocinador.id + ") --------------------");
       const qualificado = await strapi.entityService.update("api::plan.plan", planPatrocinador.id, {
         data: {
           qualificado: true,
@@ -660,10 +674,10 @@ async function qualificacaoplan(id) {
         },
       });
     } else {
-      console.log("Patrocinador já qualificado ou inativo!");
+      //console.log("Patrocinador já qualificado ou inativo!");
     }
   } else{
-    console.log("Patrocinador não está ativo no mês atual");
+    //console.log("Patrocinador não está ativo no mês atual");
   }
 }
 
