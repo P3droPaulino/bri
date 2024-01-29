@@ -52,6 +52,9 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
          console.log("ORDER GET - WEBHOOK:", orderGET);
 
          // @ts-ignore
+
+         console.log("solicitando plano sponsor:");
+         console.log(orderGET?.user?.id);
          const planSponsor = await planPatrocinador(orderGET?.user?.id); // ID patrocinador MESTRE
 
 
