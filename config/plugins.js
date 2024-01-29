@@ -41,11 +41,11 @@ module.exports = ({ env }) => ({
       },
       servers: [
         {
-          url: "https://api-bri.pedropaulino.online/api",
+          url: "https://api.topinfinit.com.br/api",
           description: "Servidor de produção"
         },
         {
-          url: "http://localhost:1337/api",
+          url: "https://api-dev.topinfinit.com.br/api",
           description: "Servidor de desenvolvimento"
         }
       ],
