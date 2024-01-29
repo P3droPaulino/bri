@@ -238,7 +238,7 @@ const updateOrderStatus = async (orderId, isPaid) => {
 };
 
 const updateUserStatus = async (userId, isPaid) => {
-  return await strapi.entityService.update("api::order.order", userId, {
+  return await strapi.entityService.update("plugin::users-permissions.user", userId, {
     data: {
       active: isPaid,
     },
