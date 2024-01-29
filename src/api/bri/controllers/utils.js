@@ -33,7 +33,7 @@ const pagoDentroMesAtual = async (plan) => {
       const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
       const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59);
       mesPago = dateToCheck >= firstDay && dateToCheck <= lastDay;
-      console.log("pagoDentroMesAtual::(", plan?.id, ")", mesPago);
+      //console.log("pagoDentroMesAtual::(", plan?.id, ")", mesPago);
     }
   } catch (e) {
     console.error("pagoDentroMesAtual::(", plan, ")", e.message);
@@ -246,6 +246,7 @@ const handleSubscriptionOrder = async (mode, orderCreated, data, product, userWi
     }
   }
   const updatedOrder = await updateOrderStatus(orderCreated.id, true);
+  const updateAff = await updateRole(orderCreated?.id);
   // Outras operações necessárias para 'subscription'
   // ...
 
@@ -269,6 +270,8 @@ const handleSubscriptionOrder = async (mode, orderCreated, data, product, userWi
   }
 
   const VMEBonus = await atribuirBonusMatriz(planAtivacao?.id, orderCreated);
+
+  const salvarFilaUnica = salvarFila();
 
   //Qualificar
   console.log("Indo qualificar agora---------------------------------")
@@ -356,7 +359,9 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
   }
 
 
-  const updatedOrder = await updateOrderStatus(orderCreated.id, true);
+  const updatedOrder = await updateOrderStatus(orderCreated?.id, true);
+
+  const updateAff = await updateRole(orderCreated?.id);
 
   // Encontrar vaga na rede para o novo plan
   try {
@@ -430,6 +435,7 @@ const handleOtherOrderTypes = async (mode, orderCreated, data, product, userWith
   }
 
   const updatedOrder = await updateOrderStatus(orderCreated.id, true);
+  const updateAff = await updateRole(orderCreated?.id);
 
   const pontosGraduacao = await getRateioBonus(orderCreated, 'pontos_graduacao');
 
@@ -438,6 +444,8 @@ const handleOtherOrderTypes = async (mode, orderCreated, data, product, userWith
   }
 
   const VMEBonus = await atribuirBonusMatriz(orderCreated?.plan?.id, orderCreated);
+
+  const salvarFilaUnica = salvarFila();
 
 
 
@@ -853,6 +861,55 @@ async function obterDadosModificadosRelatorio() {
     } catch (error) {
       console.error('Erro ao obter dados do relatório:', error);
       throw error;
+    }
+  }
+
+
+
+  async function updateRole(orderId) {
+    // Configurar o contexto com o ID do usuário
+    const order = await strapi.entityService.findOne("api::order.order", orderId, { populate: {user:true} });
+    const userId = order?.user?.id;
+  
+    // Obter a role atual do usuário
+    console.log("INDO BUSCAR ROLE");
+    console.log(userId);
+    const userRoleEntry = await strapi.entityService.findOne("plugin::users-permissions.user", userId, {
+      populate: { role: true },
+    });
+    const currentRoleId = userRoleEntry.role.id;
+
+    console.log("Role Atual:");
+    console.log(currentRoleId);
+  
+    // Verificar se a role atual é igual a 1
+    if (currentRoleId === 1) {
+
+      console.log("Update para afiliado");
+      // Buscar a role de Afiliado
+      const affiliateRole = await strapi.entityService.findMany("plugin::users-permissions.role", {
+        filters: {
+          type: {
+            $eq: "afiliado",
+          }
+        }
+      });
+  
+      // Verificar se encontrou a role de Afiliado
+      if (affiliateRole && affiliateRole.length > 0) {
+        // Atualizar a role do usuário para Afiliado
+        const updatedUserRole = await strapi.entityService.update("plugin::users-permissions.user", userId, {
+          data: {
+            role: affiliateRole[0].id,
+          },
+        });
+  
+        return updatedUserRole; // Retornar o usuário com a role atualizada
+      } else {
+        throw new Error('Role de Afiliado não encontrada.');
+      }
+    } else {
+      return null; // Ou alguma outra resposta indicando que a atualização não é necessária
     }
   }
   
