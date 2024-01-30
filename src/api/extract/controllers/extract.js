@@ -15,38 +15,59 @@ module.exports = createCoreController('api::extract.extract', ({ strapi }) => ({
      */
   async me(ctx) {
     const me = ctx.state.user;
-    const query = ctx.query; //Funcionando
-    const hasFilters = query && query.filters ? true : false;
-    // console.log("[hasFilters]", query, hasFilters);
-    const filters = {
-      filters: {
-        user: {
-          id: { $eq: me.id },
-        },
-      },
-      populate: {
-        produto: true,
-        user: true,
+    const { filters, pagination } = ctx.query;
+  
+    // Configurações de paginação
+    const page = pagination && pagination.page ? parseInt(pagination.page) : 1;
+    const pageSize = pagination && pagination.pageSize ? parseInt(pagination.pageSize) : 10;
+  
+    // Inicializando os filtros com um filtro para o usuário
+    const filterConditions = {
+      user: {
+        id: { $eq: me.id },
       },
     };
-
-    try {
-      if (hasFilters) {
-        const oe = Object.entries(query.filters)
-        for (const a in oe) {
-          const key = oe[a][0];
-          const val = oe[a][1];
-          console.log(key, val);
-          filters.filters[key] = ["true", "false"].includes(val) ? JSON.parse(oe[a][1]) : oe[a][1]
-        }
+  
+    // Processar filtros adicionais
+    if (filters) {
+      for (const field in filters) {
+        filterConditions[field] = filters[field];
       }
-      // console.log("FILTERS", filters, JSON.stringify(filters, null, 2));
-    } catch (e) {
-      console.log();
     }
-    const orders = await strapi.entityService.findMany('api::order.order', filters);
-    return orders;
-
-  },
+  
+    // Calcula o início com base na página e no tamanho da página
+    const start = (page - 1) * pageSize;
+  
+    // Executa a consulta com paginação e filtros
+    const results = await strapi.entityService.findMany('api::extract.extract', {
+      filters: filterConditions,
+      start,
+      limit: pageSize,
+      populate: '*',
+    });
+  
+    // Calcula o total de registros para a paginação
+    const total = await strapi.entityService.count('api::extract.extract', { filters: filterConditions });
+  
+    // Formata a resposta
+    return {
+      data: results,
+      meta: {
+        pagination: {
+          page,
+          pageSize,
+          pageCount: Math.ceil(total / pageSize),
+          total,
+        },
+      },
+    };
+  }
+  
+  
+  
+  
+  
+  
+  
 
 }));
