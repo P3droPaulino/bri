@@ -706,7 +706,7 @@ async function obterDadosFilaUnica() {
   //const user = ctx.state.user;
   //const { origin, protocol } = ctx.request;
   //console.log("origin", origin);
-  const baseUrl = `https://topinfinit.com.br`; // BASE URL STRAPI
+  const baseUrl = `https://api.topinfinit.com.br`; // BASE URL STRAPI
   const filas = [];
   const datas = {};
   const fila_unica_acum = [];
@@ -793,7 +793,7 @@ async function obterDadosFilaUnica() {
       let userMetas = await getUserMetas(item?.user?.id || 0);
       //console.log("usermetas: ", userMetas);
       let avatarUrl = userMetas?.avatar?.[0]?.url || null;
-      avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-use" : avatarUrl;
+      avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user" : avatarUrl;
       //console.log("Avatar URL:", avatarUrl);
 
       let lastId = plans[i - 1]?.id || "";
