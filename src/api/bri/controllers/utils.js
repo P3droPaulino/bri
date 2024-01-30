@@ -326,38 +326,26 @@ const handleSubscriptionOrder = async (mode, orderCreated, data, product, userWi
 const axios = require('axios');
 
 async function enviarDadosParaWebhook(dados) {
-    const url = 'https://webhook.site/e0c248fa-2937-4a3c-a74d-c5f2e03418a0';
+  const url = 'https://webhook.site/e0c248fa-2937-4a3c-a74d-c5f2e03418a0';
 
-    try {
-        const resposta = await axios.post(url, dados);
-        console.log('Dados enviados com sucesso:', resposta.data);
-    } catch (erro) {
-        console.error('Erro ao enviar dados:', erro);
-    }
+  try {
+    const resposta = await axios.post(url, dados);
+    console.log('Dados enviados com sucesso:', resposta.data);
+  } catch (erro) {
+    console.error('Erro ao enviar dados:', erro);
+  }
 }
 
 const handleAccessionOrder = async (mode, orderCreated, data, product, planSponsor, userWithBuyer) => {
 
-
-  // console.log("TODOS OS DADOS AQUI");
-  // console.log("-----------------------------------------------------------------------");
-  // console.log(mode);
-  // console.log(orderCreated);
-  // console.log("-----------------------------data-----------------------------------");
-  // console.log(data);
-  // console.log("-----------------------------product-----------------------------------");
-  // console.log(product);
-  // console.log("-----------------------------planSponsor-----------------------------------");
-  // console.log(planSponsor);
-  // console.log("-----------------------------userWithBuyer-----------------------------------");
-  // console.log(userWithBuyer);
-  // console.log("Entrei na config ADESÃO");
 
   if (mode === "saldo") {
     //console.log("Pagamento via saldo!")
     const userBalance = await debitUserBalance(orderCreated, data, product, "Adesão");
     console.log("EXTRATO");
     console.log(userBalance);
+
+    const extractId = userBalance.extrato.id
 
     if (!userBalance?.status) {
       return { status: false, error: "Falha no débito do saldo" };
@@ -418,7 +406,13 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
       });
 
 
-  
+      const attExtrato = await strapi.entityService.update("api::extract.extract", extractId, {
+        data: {
+          plan: plan.id,
+        }
+      });
+
+
       //pagar bônus indicação direta
       //console.log("Chamando função de pagamento do BONÛS DE INDICAÇÃO")
       const bonusIndicacao = await paidAcessionBonus(plan.id, orderCreated)
@@ -455,7 +449,7 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
   return updatedOrder;
 
 
-  
+
 };
 
 //Operações quando for vendido na loja geral
@@ -657,7 +651,7 @@ async function qualificacaoplan(id) {
 
 
   if (countIndicacao >= 5 && !planOrder.qualificado) {
-   // console.log("-------------------- PLANO QUALIFICADO (" + planOrder.id + ") --------------------");
+    // console.log("-------------------- PLANO QUALIFICADO (" + planOrder.id + ") --------------------");
     const qualificado = await strapi.entityService.update("api::plan.plan", planOrder.id, {
       data: {
         qualificado: true,
@@ -676,7 +670,7 @@ async function qualificacaoplan(id) {
     //console.log("PLAN PATROCINADOR AQUI -------------------------------------------")
     //console.log(planPatrocinador);
     const dataAtivacaoPatrocinador = new Date(planPatrocinador.dataAtivacao);
-    if (planPatrocinador.statusAtivacao && dataAtivacaoPatrocinador.getMonth() === currentMonth && dataAtivacaoPatrocinador.getFullYear() === currentYear) 
+    if (planPatrocinador.statusAtivacao && dataAtivacaoPatrocinador.getMonth() === currentMonth && dataAtivacaoPatrocinador.getFullYear() === currentYear)
 
       planPatrocinador.patrocinados.forEach(patrocinado => {
         const dataAtivacao = new Date(patrocinado.dataAtivacao);
@@ -698,7 +692,7 @@ async function qualificacaoplan(id) {
     } else {
       //console.log("Patrocinador já qualificado ou inativo!");
     }
-  } else{
+  } else {
     //console.log("Patrocinador não está ativo no mês atual");
   }
 }
@@ -732,7 +726,7 @@ async function obterDadosFilaUnica() {
         let rateioBonusFilho = 0;
         //console.log("pago no mês: ", paymentDate);
 
-       // console.log("----------------PLAN AQUI-----------------");
+        // console.log("----------------PLAN AQUI-----------------");
         //console.log(plan);
         //const maiorDataAtivacaoSubscription = await obterMaiorDataAtivacao(plan);
         //const object_rateios_bonus_pai = await getRateioBonusFila(plan);
@@ -795,9 +789,9 @@ async function obterDadosFilaUnica() {
       let position = i + 1;
       let userMetas = await getUserMetas(item?.user?.id || 0);
       //console.log("usermetas: ", userMetas);
-       let avatarUrl = userMetas?.avatar?.[0]?.url || null;
-       avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user.jpg" : avatarUrl;
-       //console.log("Avatar URL:", avatarUrl);
+      let avatarUrl = userMetas?.avatar?.[0]?.url || null;
+      avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user.jpg" : avatarUrl;
+      //console.log("Avatar URL:", avatarUrl);
 
       let lastId = plans[i - 1]?.id || "";
 
@@ -818,9 +812,9 @@ async function obterDadosFilaUnica() {
 
 
       filas.push({
-          "name": item?.user?.fullName?.split(" ")[0] || "__FULLNAME__",
-         "imageUrl": baseUrl + avatarUrl,
-         "area": item?.name || "--",
+        "name": item?.user?.fullName?.split(" ")[0] || "__FULLNAME__",
+        "imageUrl": baseUrl + avatarUrl,
+        "area": item?.name || "--",
         // "profileUrl": `${baseUrl}/api/users/${item?.user?.id || 0}`,
         "office": item?.user?.username,//userMetas?.role?.name || "__USUARIO__",
         "tags": "Mi2",
@@ -838,117 +832,117 @@ async function obterDadosFilaUnica() {
       });
     }
   }
- return filas;
- //return JSON.stringify(filas);
+  return filas;
+  //return JSON.stringify(filas);
 }
 
 async function obterDadosModificadosRelatorio() {
-    try {
-      const dataAtual = new Date();
-      const inicioDoMesAtual = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1);
-      const inicioDoMesAnterior = new Date(dataAtual.getFullYear(), dataAtual.getMonth() - 1, 1);
-  
-      let relatorio;
-      // Busca o relatório do mês atual
-      const relatoriosAtual = await strapi.entityService.findMany("api::report.report", {
+  try {
+    const dataAtual = new Date();
+    const inicioDoMesAtual = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1);
+    const inicioDoMesAnterior = new Date(dataAtual.getFullYear(), dataAtual.getMonth() - 1, 1);
+
+    let relatorio;
+    // Busca o relatório do mês atual
+    const relatoriosAtual = await strapi.entityService.findMany("api::report.report", {
+      filters: {
+        type: "Construção Fila",
+        date: {
+          $gte: inicioDoMesAtual
+        }
+      },
+      sort: { date: 'desc' },
+      limit: 1
+    });
+
+    if (relatoriosAtual && relatoriosAtual.length > 0) {
+      // Se encontrou relatório do mês atual, retorna os dados sem modificação
+      relatorio = relatoriosAtual[0];
+      return relatorio.dados;
+    } else {
+      // Busca o relatório do mês anterior
+      const relatoriosAnterior = await strapi.entityService.findMany("api::report.report", {
         filters: {
           type: "Construção Fila",
           date: {
-            $gte: inicioDoMesAtual
+            $gte: inicioDoMesAnterior,
+            $lt: inicioDoMesAtual
           }
         },
         sort: { date: 'desc' },
         limit: 1
       });
-  
-      if (relatoriosAtual && relatoriosAtual.length > 0) {
-        // Se encontrou relatório do mês atual, retorna os dados sem modificação
-        relatorio = relatoriosAtual[0];
-        return relatorio.dados;
-      } else {
-        // Busca o relatório do mês anterior
-        const relatoriosAnterior = await strapi.entityService.findMany("api::report.report", {
-          filters: {
-            type: "Construção Fila",
-            date: {
-              $gte: inicioDoMesAnterior,
-              $lt: inicioDoMesAtual
-            }
-          },
-          sort: { date: 'desc' },
-          limit: 1
-        });
-  
-        if (relatoriosAnterior && relatoriosAnterior.length > 0) {
-          relatorio = relatoriosAnterior[0];
-          // Modifica os valores das chaves especificadas para "0" nos dados do mês anterior
-          const dadosModificados = relatorio.dados.map(dado => ({
-            ...dado,
-            contagem_abaixo: "0",
-            montante_fila: "0",
-            total_cotas: "0",
-            fator: "0",
-            ganhoEstimado: "0"
-          }));
-          return dadosModificados;
+
+      if (relatoriosAnterior && relatoriosAnterior.length > 0) {
+        relatorio = relatoriosAnterior[0];
+        // Modifica os valores das chaves especificadas para "0" nos dados do mês anterior
+        const dadosModificados = relatorio.dados.map(dado => ({
+          ...dado,
+          contagem_abaixo: "0",
+          montante_fila: "0",
+          total_cotas: "0",
+          fator: "0",
+          ganhoEstimado: "0"
+        }));
+        return dadosModificados;
+      }
+    }
+    return []; // Retorna um array vazio se nenhum relatório foi encontrado
+  } catch (error) {
+    console.error('Erro ao obter dados do relatório:', error);
+    throw error;
+  }
+}
+
+
+
+async function updateRole(orderId) {
+  // Configurar o contexto com o ID do usuário
+  const order = await strapi.entityService.findOne("api::order.order", orderId, { populate: { user: true } });
+  const userId = order?.user?.id;
+
+  // Obter a role atual do usuário
+  console.log("INDO BUSCAR ROLE");
+  console.log(userId);
+  const userRoleEntry = await strapi.entityService.findOne("plugin::users-permissions.user", userId, {
+    populate: { role: true },
+  });
+  const currentRoleId = userRoleEntry.role.id;
+
+  console.log("Role Atual:");
+  console.log(currentRoleId);
+
+  // Verificar se a role atual é igual a 1
+  if (currentRoleId === 1) {
+
+    console.log("Update para afiliado");
+    // Buscar a role de Afiliado
+    const affiliateRole = await strapi.entityService.findMany("plugin::users-permissions.role", {
+      filters: {
+        type: {
+          $eq: "afiliado",
         }
       }
-      return []; // Retorna um array vazio se nenhum relatório foi encontrado
-    } catch (error) {
-      console.error('Erro ao obter dados do relatório:', error);
-      throw error;
-    }
-  }
-
-
-
-  async function updateRole(orderId) {
-    // Configurar o contexto com o ID do usuário
-    const order = await strapi.entityService.findOne("api::order.order", orderId, { populate: {user:true} });
-    const userId = order?.user?.id;
-  
-    // Obter a role atual do usuário
-    console.log("INDO BUSCAR ROLE");
-    console.log(userId);
-    const userRoleEntry = await strapi.entityService.findOne("plugin::users-permissions.user", userId, {
-      populate: { role: true },
     });
-    const currentRoleId = userRoleEntry.role.id;
 
-    console.log("Role Atual:");
-    console.log(currentRoleId);
-  
-    // Verificar se a role atual é igual a 1
-    if (currentRoleId === 1) {
-
-      console.log("Update para afiliado");
-      // Buscar a role de Afiliado
-      const affiliateRole = await strapi.entityService.findMany("plugin::users-permissions.role", {
-        filters: {
-          type: {
-            $eq: "afiliado",
-          }
-        }
+    // Verificar se encontrou a role de Afiliado
+    if (affiliateRole && affiliateRole.length > 0) {
+      // Atualizar a role do usuário para Afiliado
+      const updatedUserRole = await strapi.entityService.update("plugin::users-permissions.user", userId, {
+        data: {
+          role: affiliateRole[0].id,
+        },
       });
-  
-      // Verificar se encontrou a role de Afiliado
-      if (affiliateRole && affiliateRole.length > 0) {
-        // Atualizar a role do usuário para Afiliado
-        const updatedUserRole = await strapi.entityService.update("plugin::users-permissions.user", userId, {
-          data: {
-            role: affiliateRole[0].id,
-          },
-        });
-  
-        return updatedUserRole; // Retornar o usuário com a role atualizada
-      } else {
-        throw new Error('Role de Afiliado não encontrada.');
-      }
+
+      return updatedUserRole; // Retornar o usuário com a role atualizada
     } else {
-      return null; // Ou alguma outra resposta indicando que a atualização não é necessária
+      throw new Error('Role de Afiliado não encontrada.');
     }
+  } else {
+    return null; // Ou alguma outra resposta indicando que a atualização não é necessária
   }
-  
+}
+
 
 
 
