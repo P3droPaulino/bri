@@ -356,6 +356,8 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
   if (mode === "saldo") {
     //console.log("Pagamento via saldo!")
     const userBalance = await debitUserBalance(orderCreated, data, product, "Adesão");
+    console.log("EXTRATO");
+    console.log(userBalance);
 
     if (!userBalance?.status) {
       return { status: false, error: "Falha no débito do saldo" };
@@ -416,6 +418,7 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
       });
 
 
+  
       //pagar bônus indicação direta
       //console.log("Chamando função de pagamento do BONÛS DE INDICAÇÃO")
       const bonusIndicacao = await paidAcessionBonus(plan.id, orderCreated)
