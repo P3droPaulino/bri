@@ -382,7 +382,11 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
   }
 
   console.log("atualizando status do pedido");
+  console.log(orderCreated);
   const updatedOrder = await updateOrderStatus(orderCreated?.id, true);
+
+
+
 
   console.log("atualizando status do usuário");
   const updatedUser = await updateUserStatus(orderCreated?.user?.id, true);
