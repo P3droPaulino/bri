@@ -167,7 +167,10 @@ const bodyOrderCreate = async (body) => {
         "rateios_unilevel": product?.rateios_unilevel
     };
 
-    const orderCreated = await strapi.entityService.create("api::order.order", { data: BODY_ORDER });
+    const orderCreated = await strapi.entityService.create("api::order.order", {
+        data: BODY_ORDER,
+        populate: "*"
+    });
     const userWithBuyer = data?.user;
 
     if (product?.type == 'subscription' && empty(data?.pedido_pai)) {
