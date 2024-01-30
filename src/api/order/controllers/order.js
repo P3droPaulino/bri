@@ -27,10 +27,7 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
           id: { $eq: me.id },
         },
       },
-      populate: {
-        product: true,
-        user: true,
-      },
+      populate: "*",
     };
 
     try {
