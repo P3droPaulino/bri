@@ -793,7 +793,7 @@ async function obterDadosFilaUnica() {
       let userMetas = await getUserMetas(item?.user?.id || 0);
       //console.log("usermetas: ", userMetas);
       let avatarUrl = userMetas?.avatar?.[0]?.url || null;
-      avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/uploads/blank-user" : avatarUrl;
+      avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-use" : avatarUrl;
       //console.log("Avatar URL:", avatarUrl);
 
       let lastId = plans[i - 1]?.id || "";
