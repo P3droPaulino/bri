@@ -381,10 +381,13 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
     throw new Error("A rede está cheia, não há vagas disponíveis.");
   }
 
-
+  console.log("atualizando status do pedido");
   const updatedOrder = await updateOrderStatus(orderCreated?.id, true);
+
+  console.log("atualizando status do usuário");
   const updatedUser = await updateUserStatus(orderCreated?.user?.id, true);
 
+  console.log("atualizando role");
   const updateAff = await updateRole(orderCreated?.id);
 
   // Encontrar vaga na rede para o novo plan
