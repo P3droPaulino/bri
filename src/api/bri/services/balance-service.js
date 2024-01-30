@@ -117,11 +117,9 @@ module.exports = {
             data: extractData
           });
           
-          let returner = {};
           
           returner["message"] = "Processado com sucesso!";
           returner["status"] = true;
-          returner["data"] = extratoCreate;
         } catch (error) {
           hasError.push("Falha ao processar: " + error.message);
           returner["status"] = false;
