@@ -339,7 +339,7 @@ async matrizview(ctx) {
       // @ts-ignore
       let userMetas = await getUserMetas(plano?.user?.id || 0);
       let avatarUrl = userMetas?.avatar?.[0]?.url || null;
-      avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user" : avatarUrl;
+      avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user.jpg" : avatarUrl;
 
       // Adiciona o plano atual à matriz
       matriz.push({
