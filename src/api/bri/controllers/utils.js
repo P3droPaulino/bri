@@ -343,8 +343,8 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
   if (mode === "saldo") {
     //console.log("Pagamento via saldo!")
     const userBalance = await debitUserBalance(orderCreated, data, product, "Adesão");
-    console.log("EXTRATO");
-    console.log(userBalance);
+    //console.log("EXTRATO");
+    //console.log(userBalance);
 
     extractId = userBalance.extrato.id
 
@@ -372,17 +372,17 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
     throw new Error("A rede está cheia, não há vagas disponíveis.");
   }
 
-  console.log("atualizando status do pedido");
-  console.log(orderCreated);
+  //console.log("atualizando status do pedido");
+  //console.log(orderCreated);
   const updatedOrder = await updateOrderStatus(orderCreated?.id, true);
 
 
 
 
-  console.log("atualizando status do usuário");
+  //console.log("atualizando status do usuário");
   const updatedUser = await updateUserStatus(orderCreated?.user?.id, true);
 
-  console.log("atualizando role");
+  //console.log("atualizando role");
   const updateAff = await updateRole(orderCreated?.id);
 
   // Encontrar vaga na rede para o novo plan
@@ -431,6 +431,8 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
 
       //console.log("aqui vai os dados do plano criado:");
       //console.log(plan);
+
+      console.log("Chamando qualificação")
       const qualificar = await qualificacaoplan(plan?.id);
 
       const salvarFilaUnica = salvarFila();
