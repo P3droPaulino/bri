@@ -541,7 +541,7 @@ async function salvarFila() {
 
 
 const debitUserBalance = async (orderCreated, data, product, type) => {
-  return await balanceService.balance(strapi, {
+  const balanceResult = await balanceService.balance(strapi, {
     user: data.user,
     mode: "D",
     amount: product?.regular_price,
@@ -550,6 +550,8 @@ const debitUserBalance = async (orderCreated, data, product, type) => {
     type: type,
     plan: data.plan
   });
+
+  return balanceResult;
 };
 
 

@@ -117,7 +117,7 @@ module.exports = {
             data: extractData
           });
           
-          
+          returner["extrato"] = extratoCreate;
           returner["message"] = "Processado com sucesso!";
           returner["status"] = true;
         } catch (error) {
