@@ -56,12 +56,14 @@ module.exports = {
           )
           // Lógica de atualização do saldo
           if (mode === 'D') {
+            console.log("entrou no modo de débito de saldo");
             const totalBalance = balance_available + balance_blocked;
             if (amount > totalBalance) {
               throw new Error("Saldo insuficiente para a operação");
             }
   
             if (to === 'total') {
+              console.log("pagando com saldo total");
               let totalAmount = amount;
               if (balance_blocked >= totalAmount) {
                 balance_blocked -= totalAmount;
@@ -70,6 +72,7 @@ module.exports = {
                 balance_blocked = 0;
                 balance_available = Math.max(balance_available - totalAmount, 0);
               }
+              console.log("terminou de pagar com saldo total")
             } else if (to === 'available') {
               balance_available = Math.max(balance_available - amount, 0);
             } else if (to === 'blocked') {
@@ -90,6 +93,7 @@ module.exports = {
           }
   
           // Atualizar saldo na carteira
+          console.log("atualizando saldo carteira")
           await strapi.entityService.update('api::balance.balance', wallet.id, {
             data: {
               balance_available,
@@ -97,6 +101,7 @@ module.exports = {
             },
           });
   
+          console.log("criando extrato")
           // Criar registro de extrato
           const extractData = {
             data: new Date(), // Data atual
