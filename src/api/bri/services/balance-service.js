@@ -113,12 +113,15 @@ module.exports = {
             plan
           };
     
-          await strapi.entityService.create('api::extract.extract', {
+          const extratoCreate = await strapi.entityService.create('api::extract.extract', {
             data: extractData
           });
-  
+          
+          let returner = {};
+          
           returner["message"] = "Processado com sucesso!";
           returner["status"] = true;
+          returner["data"] = extratoCreate;
         } catch (error) {
           hasError.push("Falha ao processar: " + error.message);
           returner["status"] = false;
