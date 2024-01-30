@@ -339,13 +339,14 @@ async function enviarDadosParaWebhook(dados) {
 const handleAccessionOrder = async (mode, orderCreated, data, product, planSponsor, userWithBuyer) => {
 
 
+  let extractId = 0
   if (mode === "saldo") {
     //console.log("Pagamento via saldo!")
     const userBalance = await debitUserBalance(orderCreated, data, product, "Adesão");
     console.log("EXTRATO");
     console.log(userBalance);
 
-    const extractId = userBalance.extrato.id
+    extractId = userBalance.extrato.id
 
     if (!userBalance?.status) {
       return { status: false, error: "Falha no débito do saldo" };
