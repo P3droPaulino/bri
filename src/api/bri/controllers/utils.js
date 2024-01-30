@@ -654,7 +654,7 @@ async function qualificacaoplan(id) {
 
 
   if (countIndicacao >= 5 && !planOrder.qualificado) {
-    // console.log("-------------------- PLANO QUALIFICADO (" + planOrder.id + ") --------------------");
+     console.log("-------------------- PLANO QUALIFICADO (" + planOrder.id + ") --------------------");
     const qualificado = await strapi.entityService.update("api::plan.plan", planOrder.id, {
       data: {
         qualificado: true,
@@ -793,7 +793,7 @@ async function obterDadosFilaUnica() {
       let userMetas = await getUserMetas(item?.user?.id || 0);
       //console.log("usermetas: ", userMetas);
       let avatarUrl = userMetas?.avatar?.[0]?.url || null;
-      avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/blank-user.jpg" : avatarUrl;
+      avatarUrl = [undefined, null, ''].includes(avatarUrl) ? "/uploads/blank-user" : avatarUrl;
       //console.log("Avatar URL:", avatarUrl);
 
       let lastId = plans[i - 1]?.id || "";
