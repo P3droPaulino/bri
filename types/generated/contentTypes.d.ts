@@ -905,7 +905,8 @@ export interface ApiExtractExtract extends Schema.CollectionType {
         'Estorno',
         'Assinatura',
         'Ades\u00E3o',
-        'Loja Virtual'
+        'Loja Virtual',
+        'Saque'
       ]
     >;
     status: Attribute.Enumeration<['Cr\u00E9dito', 'D\u00E9bito']>;
@@ -1433,6 +1434,48 @@ export interface ApiWebhookWebhook extends Schema.CollectionType {
   };
 }
 
+export interface ApiWithdrawWithdraw extends Schema.CollectionType {
+  collectionName: 'withdraws';
+  info: {
+    singularName: 'withdraw';
+    pluralName: 'withdraws';
+    displayName: 'Withdraw';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    typePix: Attribute.Enumeration<
+      ['cpf_cnpj', 'aleatoria', 'email', 'celular']
+    >;
+    chavePix: Attribute.String;
+    aprovado: Attribute.Boolean;
+    user: Attribute.Relation<
+      'api::withdraw.withdraw',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    dataSolicitacao: Attribute.DateTime;
+    dataPagamento: Attribute.DateTime;
+    value: Attribute.Decimal;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::withdraw.withdraw',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::withdraw.withdraw',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -1464,6 +1507,7 @@ declare module '@strapi/types' {
       'api::ticket.ticket': ApiTicketTicket;
       'api::vme-point.vme-point': ApiVmePointVmePoint;
       'api::webhook.webhook': ApiWebhookWebhook;
+      'api::withdraw.withdraw': ApiWithdrawWithdraw;
     }
   }
 }
