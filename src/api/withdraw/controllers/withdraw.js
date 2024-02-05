@@ -6,6 +6,7 @@
 
 const { createCoreController } = require('@strapi/strapi').factories;
 const { debitUserWithdraw } = require('../../withdraw/controllers/utils');
+const axios = require('axios');
 
 
 module.exports = createCoreController('api::withdraw.withdraw', ({ strapi }) => ({
@@ -112,12 +113,63 @@ module.exports = createCoreController('api::withdraw.withdraw', ({ strapi }) => 
             // O método ctx.throw automaticamente ajusta a resposta para um erro
             ctx.throw(500, 'Erro ao processar sua solicitação');
         }
+    },
+
+    /**
+   * Criar Cobrança PIX
+   * @method POST
+   * @param {*} ctx
+   * @return { Promise<any> }
+   */
+    async createPayment(ctx) {
+        const body = ctx.request.body;
+        const hasError = [];
+        const env = process.env;
+        const urlAsaas = process.env.URL_asaas;
+        const keyAsaas = process.env.API_key;
+
+        // Gerar mensagem de erro, se houver
+        if (typeof body.id !== 'number') hasError.push("campo 'id' deve ser um Inteiro");
+
+
+        //console.log(userUpdate);
+        try {
+
+            const withdraw = await strapi.entityService.findOne("api::withdraw.withdraw", body.id, { populate: "*" });
+
+            //console.log("SAQUE AQUI")
+            //console.log(withdraw);
+            const customerData = {
+                value: withdraw?.value,
+                operationType: 'PIX',
+                pixAddressKey: '122.611.074-63',
+                pixAddressKeyType: withdraw?.typePix,
+                description: 'Saque'
+            };
+            console.log("chamando paymentResponse");
+            const paymentResponse = await axios.post(urlAsaas + '/v3/transfers', customerData, {
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    access_token: keyAsaas,
+                },
+            });
+
+            const paymentAsaas = paymentResponse.data;
+            console.log("resposta paymentResponse");
+            console.log(paymentResponse.data);
+
+            //console.log("atualizar usuário: ", orderUpdate?.user?.id, "com ID: ", clienteAsaas?.id);
+
+            // const clienteAsaasof = await strapi.entityService.update("plugin::users-permissions.user", orderUpdate?.user?.id, {
+            //     data: {
+            //         clienteCode_asaas: clienteAsaas?.id
+            //     },
+            // });
+        } catch {
+
+        }
     }
-
-
-
-
-
 
 
 

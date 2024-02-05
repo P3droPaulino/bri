@@ -40,6 +40,24 @@
     },
     "value": {
       "type": "decimal"
+    },
+    "webhook": {
+      "type": "json"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "Criada",
+        "Pendente",
+        "Processamento Bancário",
+        "Bloqueada",
+        "Realizada",
+        "Falhou",
+        "Cancelada"
+      ]
+    },
+    "responseCreate": {
+      "type": "json"
     }
   }
 }

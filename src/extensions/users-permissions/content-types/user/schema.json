@@ -177,6 +177,9 @@
     },
     "document_issue_date": {
       "type": "date"
+    },
+    "notificacoesCliente": {
+      "type": "json"
     }
   }
 }

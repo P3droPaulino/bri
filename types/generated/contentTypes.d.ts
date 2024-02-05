@@ -659,6 +659,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     clienteCode_asaas: Attribute.String;
     document_issue: Attribute.String;
     document_issue_date: Attribute.Date;
+    notificacoesCliente: Attribute.JSON;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1459,6 +1460,19 @@ export interface ApiWithdrawWithdraw extends Schema.CollectionType {
     dataSolicitacao: Attribute.DateTime;
     dataPagamento: Attribute.DateTime;
     value: Attribute.Decimal;
+    webhook: Attribute.JSON;
+    status: Attribute.Enumeration<
+      [
+        'Criada',
+        'Pendente',
+        'Processamento Banc\u00E1rio',
+        'Bloqueada',
+        'Realizada',
+        'Falhou',
+        'Cancelada'
+      ]
+    >;
+    responseCreate: Attribute.JSON;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

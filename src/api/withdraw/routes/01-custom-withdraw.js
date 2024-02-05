@@ -5,5 +5,10 @@ module.exports = {
         path: '/withdraws/me',
         handler: 'withdraw.me'
       },
+      {
+        method: 'POST',
+        path: '/withdraws/payment',
+        handler: 'withdraw.createPayment'
+      }
     ],
   };
