@@ -721,6 +721,36 @@ export interface PluginI18NLocale extends Schema.CollectionType {
   };
 }
 
+export interface ApiAccessAccess extends Schema.CollectionType {
+  collectionName: 'accesses';
+  info: {
+    singularName: 'access';
+    pluralName: 'accesses';
+    displayName: 'Access';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    data: Attribute.JSON;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::access.access',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::access.access',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiAccountAccount extends Schema.CollectionType {
   collectionName: 'accounts';
   info: {
@@ -907,7 +937,9 @@ export interface ApiExtractExtract extends Schema.CollectionType {
         'Assinatura',
         'Ades\u00E3o',
         'Loja Virtual',
-        'Saque'
+        'Saque',
+        'Cr\u00E9dito (adm)',
+        'D\u00E9bito (adm)'
       ]
     >;
     status: Attribute.Enumeration<['Cr\u00E9dito', 'D\u00E9bito']>;
@@ -966,6 +998,45 @@ export interface ApiGraduationGraduation extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::graduation.graduation',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiLaunchLaunch extends Schema.CollectionType {
+  collectionName: 'launches';
+  info: {
+    singularName: 'launch';
+    pluralName: 'launches';
+    displayName: 'Launch';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    user: Attribute.Relation<
+      'api::launch.launch',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    value: Attribute.Float;
+    description: Attribute.String;
+    type: Attribute.String;
+    status: Attribute.String;
+    data: Attribute.DateTime;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::launch.launch',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::launch.launch',
       'oneToOne',
       'admin::user'
     > &
@@ -1506,6 +1577,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'plugin::i18n.locale': PluginI18NLocale;
+      'api::access.access': ApiAccessAccess;
       'api::account.account': ApiAccountAccount;
       'api::apportionment.apportionment': ApiApportionmentApportionment;
       'api::balance.balance': ApiBalanceBalance;
@@ -1513,6 +1585,7 @@ declare module '@strapi/types' {
       'api::category.category': ApiCategoryCategory;
       'api::extract.extract': ApiExtractExtract;
       'api::graduation.graduation': ApiGraduationGraduation;
+      'api::launch.launch': ApiLaunchLaunch;
       'api::order.order': ApiOrderOrder;
       'api::plan.plan': ApiPlanPlan;
       'api::product.product': ApiProductProduct;

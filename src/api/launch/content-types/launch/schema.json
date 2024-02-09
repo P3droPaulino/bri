@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "launches",
+  "info": {
+    "singularName": "launch",
+    "pluralName": "launches",
+    "displayName": "Launch",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "value": {
+      "type": "float"
+    },
+    "description": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "data": {
+      "type": "datetime"
+    }
+  }
+}

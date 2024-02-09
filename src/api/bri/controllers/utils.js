@@ -208,7 +208,7 @@ async function atribuirPontosVME(idPlano, pontos, order, idPlanoInicial, idEquip
 
   // Se existir um patrocinador na matriz, continuar subindo
   if (plano?.matriz_patrocinador) {
-    //console.log("ENTREI NO VME 2")
+    console.log("ENTREI NO VME 2")
     await atribuirPontosVME(plano?.matriz_patrocinador?.id, pontos, order, idPlanoInicial, idPlano);
   }
 }

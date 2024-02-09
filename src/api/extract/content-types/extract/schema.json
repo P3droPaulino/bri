@@ -27,7 +27,9 @@
         "Assinatura",
         "Adesão",
         "Loja Virtual",
-        "Saque"
+        "Saque",
+        "Crédito (adm)",
+        "Débito (adm)"
       ]
     },
     "status": {

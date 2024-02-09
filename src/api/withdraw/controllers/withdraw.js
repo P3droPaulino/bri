@@ -52,9 +52,30 @@ module.exports = createCoreController('api::withdraw.withdraw', ({ strapi }) => 
         // Calcula o total de registros para a paginação
         const total = await strapi.entityService.count('api::withdraw.withdraw', { filters: filterConditions });
 
+
+        // Ajusta os resultados para o formato desejado
+    const adjustedResults = results.map(item => ({
+        id: item.id,
+        attributes: {
+            ...item,
+            user: {
+                data: {
+                    id: item.user.id,
+                    attributes: { ...item.user }
+                }
+            }
+        }
+    }));
+
+    // Remover as propriedades não desejadas de cada item
+    adjustedResults.forEach(item => {
+        delete item.attributes.user.id;
+        delete item.attributes.id;
+    });
+
         // Formata a resposta
         return {
-            data: results,
+            data: adjustedResults,
             meta: {
                 pagination: {
                     page,
