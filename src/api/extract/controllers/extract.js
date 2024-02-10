@@ -48,10 +48,44 @@ module.exports = createCoreController('api::extract.extract', ({ strapi }) => ({
   
     // Calcula o total de registros para a paginação
     const total = await strapi.entityService.count('api::extract.extract', { filters: filterConditions });
+
+    // Ajusta os resultados para o formato desejado
+    const adjustedResults = results.map(item => {
+      // Transforma cada item para incluir 'attributes' e ajusta 'user' e 'plan'
+      return {
+          id: item.id,
+          attributes: {
+              ...item,
+              user: item.user ? {
+                  data: {
+                      id: item.user.id,
+                      attributes: { ...item.user }
+                  }
+              } : undefined, // Ajuste condicional para 'user'
+              plan: item.plan ? {
+                  data: {
+                      id: item.plan.id,
+                      attributes: { ...item.plan }
+                  }
+              } : undefined, // Ajuste condicional para 'plan'
+          }
+      };
+  });
+
+  // Remove propriedades indesejadas de 'attributes' para cada item
+  adjustedResults.forEach(item => {
+      delete item.attributes.id; // Remova se necessário
+      if (item.attributes.user) {
+          delete item.attributes.user.data.attributes.id;
+      }
+      if (item.attributes.plan) {
+          delete item.attributes.plan.data.attributes.id;
+      }
+  });
   
     // Formata a resposta
     return {
-      data: results,
+      data: adjustedResults,
       meta: {
         pagination: {
           page,
