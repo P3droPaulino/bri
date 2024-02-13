@@ -603,7 +603,7 @@ const paidAcessionBonus = async (idPlano, order) => {
 
 
 
-async function atribuirBonusMatriz(idPlano, order, planoInicial, idPlanoInicial, idEquipe = null, nivelAtual = 0) {
+async function atribuirBonusMatriz(idPlano, order, planoInicial, idPlanoInicial, idEquipe = null, nivelAtual = 1) {
 
   console.log("Entrou nos bonus matriz")
   // Parar a recursividade após 7 níveis
@@ -613,6 +613,7 @@ async function atribuirBonusMatriz(idPlano, order, planoInicial, idPlanoInicial,
   if (!plano) return;
 
   if (!idPlanoInicial) {
+    console.log("Não existe plano inifial, definindo");
     idPlanoInicial = idPlano;
     planoInicial = await strapi.entityService.findOne("api::plan.plan", idPlanoInicial, { populate: { matriz_patrocinador: true, user: true } });
   }
