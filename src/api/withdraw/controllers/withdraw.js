@@ -48,7 +48,7 @@ module.exports = createCoreController('api::withdraw.withdraw', ({ strapi }) => 
             limit: pageSize,
             sort: { createdAt: 'desc' },
             populate: '*',
-            
+
         });
 
         // Calcula o total de registros para a paginação
@@ -56,24 +56,24 @@ module.exports = createCoreController('api::withdraw.withdraw', ({ strapi }) => 
 
 
         // Ajusta os resultados para o formato desejado
-    const adjustedResults = results.map(item => ({
-        id: item.id,
-        attributes: {
-            ...item,
-            user: {
-                data: {
-                    id: item.user.id,
-                    attributes: { ...item.user }
+        const adjustedResults = results.map(item => ({
+            id: item.id,
+            attributes: {
+                ...item,
+                user: {
+                    data: {
+                        id: item.user.id,
+                        attributes: { ...item.user }
+                    }
                 }
             }
-        }
-    }));
+        }));
 
-    // Remover as propriedades não desejadas de cada item
-    adjustedResults.forEach(item => {
-        delete item.attributes.user.id;
-        delete item.attributes.id;
-    });
+        // Remover as propriedades não desejadas de cada item
+        adjustedResults.forEach(item => {
+            delete item.attributes.user.id;
+            delete item.attributes.id;
+        });
 
         // Formata a resposta
         return {
@@ -160,13 +160,41 @@ module.exports = createCoreController('api::withdraw.withdraw', ({ strapi }) => 
 
             const withdraw = await strapi.entityService.findOne("api::withdraw.withdraw", body.id, { populate: "*" });
 
+            let pixAddressKey = withdraw?.chavePix;
+            if (['cpf_cnpj', 'celular'].includes(withdraw?.typePix)) {
+                // Remove todos os caracteres não-numéricos
+                pixAddressKey = pixAddressKey.replace(/\D/g, '');
+            }
+
+            // Depois, determinamos se é um CPF ou CNPJ baseado na quantidade de dígitos
+            let pixAddressKeyType = "";
+            if (withdraw?.typePix === 'cpf_cnpj') {
+                // Verifica a quantidade de dígitos para determinar se é CPF ou CNPJ
+                pixAddressKeyType = pixAddressKey.length === 11 ? 'CPF' : 'CNPJ';
+            }
+
+            if (withdraw?.typePix === 'email') {
+                // Verifica a quantidade de dígitos para determinar se é CPF ou CNPJ
+                pixAddressKeyType = "EMAIL";
+            }
+
+            if (withdraw?.typePix === 'celular') {
+                // Verifica a quantidade de dígitos para determinar se é CPF ou CNPJ
+                pixAddressKeyType = "PHONE";
+            }
+
+            if (withdraw?.typePix === 'aleatoria') {
+                // Verifica a quantidade de dígitos para determinar se é CPF ou CNPJ
+                pixAddressKeyType = "EVP";
+            }
+
             //console.log("SAQUE AQUI")
             //console.log(withdraw);
             const customerData = {
                 value: withdraw?.value,
                 operationType: 'PIX',
-                pixAddressKey: '122.611.074-63',
-                pixAddressKeyType: withdraw?.typePix,
+                pixAddressKey: pixAddressKey,
+                pixAddressKeyType: pixAddressKeyType,
                 description: 'Saque'
             };
             console.log("chamando paymentResponse");
