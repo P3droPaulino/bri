@@ -434,11 +434,14 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
       //lembrar de distribuir pontos apenas se a opção estiver true no produto, alterar o 10 pelo valor.
       const pontosGraduacao = await getRateioBonus(orderCreated, 'pontos_graduacao');
 
-
+      console.log("Indo verificar pagamento de pontos");
       if (pontosGraduacao.status) {
+        console.log("Pagando pontos");
         const VME = await atribuirPontosVME(plan?.id, pontosGraduacao?.value, orderCreated.id);
+        console.log("Pontos pagos");
       }
-
+    
+      console.log("Indo pagar bônus da matriz");
       const VMEBonus = await atribuirBonusMatriz(plan?.id, orderCreated);
 
       //console.log("aqui vai os dados do plano criado:");
@@ -624,8 +627,8 @@ async function atribuirBonusMatriz(idPlano, order, planoInicial, idPlanoInicial,
 
   // Chamada à função balanceService.balance
   if (nivelAtual > 0 && bonusMatriz.status) {
-    //console.log("bonusMatriz");
-    //console.log(bonusMatriz);
+    console.log("bonusMatriz");
+    console.log(nivelAtual);
     const creditUserBalance = await balanceService.balance(strapi, {
       user: plano?.user.id,
       mode: "C",
@@ -636,6 +639,7 @@ async function atribuirBonusMatriz(idPlano, order, planoInicial, idPlanoInicial,
       plan: plano?.id
     });
   }
+  console.log("após inserir o saldo");
   // Continuar subindo na matriz patrocinadora
   if (plano?.matriz_patrocinador) {
     await atribuirBonusMatriz(plano?.matriz_patrocinador?.id, order, planoInicial, idPlanoInicial, idPlano, nivelAtual + 1);
