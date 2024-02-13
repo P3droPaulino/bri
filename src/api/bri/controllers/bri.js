@@ -916,8 +916,13 @@ async rateiobonus(ctx) {
 async pontosMatriz(ctx) {
   const { id } = ctx.params;
 
+  // Calcular o início e o fim do mês atual
+  const agora = new Date();
+  const inicioDoMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+  const fimDoMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0, 23, 59, 59, 999);
+
   const pontos = await strapi.entityService.findMany('api::vme-point.vme-point', {
-    filters: { plan_receiver: { id: { $eq: id } } },
+    filters: { plan_receiver: { id: { $eq: id } }, createdAt: { $gte: inicioDoMes, $lte: fimDoMes } },
     populate: { plan_receiver: { populate: { user: true } }, plan_generator: { populate: { user: true } }, plan_team: { populate: { user: true } } }
   });
 
