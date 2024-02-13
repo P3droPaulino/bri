@@ -120,13 +120,15 @@ module.exports = {
           data: extractData
         });
 
+
+        if (extractData.status == "Crédito" && extractData.type != "Crédito (adm)"){
         const titulo = `+ R$ ${extractData.value}`;
 
         console.log("Enviando Notificação");
         enviarNotificacao(titulo, extractData.description, extractData.user)
           .then(() => console.log('Notificação enviada com sucesso.'))
           .catch(error => console.error('Erro ao enviar notificação:', error));
-
+        }
 
         returner["extrato"] = extratoCreate;
         returner["message"] = "Processado com sucesso!";
