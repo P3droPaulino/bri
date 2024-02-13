@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "crons",
+  "info": {
+    "singularName": "cron",
+    "pluralName": "crons",
+    "displayName": "Cron",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "report": {
+      "type": "json"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "Fila Única",
+        "Inativação",
+        "Graduação"
+      ]
+    },
+    "date": {
+      "type": "datetime"
+    },
+    "qualificados": {
+      "type": "json"
+    }
+  }
+}

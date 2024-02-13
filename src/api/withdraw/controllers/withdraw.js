@@ -46,7 +46,9 @@ module.exports = createCoreController('api::withdraw.withdraw', ({ strapi }) => 
             filters: filterConditions,
             start,
             limit: pageSize,
+            sort: { createdAt: 'desc' },
             populate: '*',
+            
         });
 
         // Calcula o total de registros para a paginação

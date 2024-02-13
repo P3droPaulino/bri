@@ -41,7 +41,8 @@
       "type": "json"
     },
     "paid": {
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     "dataPagamento": {
       "type": "datetime"

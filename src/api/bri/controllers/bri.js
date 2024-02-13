@@ -345,15 +345,15 @@ async matrizview(ctx) {
       matriz.push({
           "name": plano?.user?.fullName?.split(" ")[0] || "__FULLNAME__",
           "imageUrl": baseUrl + avatarUrl,
-          "area": plano?.name,
+          "area": plano?.name || "",
           //"profileUrl": "http://localhost:1337/api/users/4",
           //"office": "Administrador",
-          "tags": plano?.statusAtivacao,
+          //"tags": "plano?.statusAtivacao",
           //"positionName": "6",
           "id": String(plano?.id),
-          "parentId": plano?.matriz_patrocinador ? String(plano?.matriz_patrocinador?.id) : null,
+          "parentId": String(plano.id) === String(id) ? null : String(plano?.matriz_patrocinador?.id),
           //"size": "",
-          //"qualificado": "",
+          "qualificado": plano?.statusAtivacao ? "Ativo" : "Inativo",
           //"contagem_abaixo": ""
           // Outros campos conforme necessário
       });

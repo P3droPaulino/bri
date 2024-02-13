@@ -913,6 +913,33 @@ export interface ApiCategoryCategory extends Schema.CollectionType {
   };
 }
 
+export interface ApiCronCron extends Schema.CollectionType {
+  collectionName: 'crons';
+  info: {
+    singularName: 'cron';
+    pluralName: 'crons';
+    displayName: 'Cron';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    report: Attribute.JSON;
+    type: Attribute.Enumeration<
+      ['Fila \u00DAnica', 'Inativa\u00E7\u00E3o', 'Gradua\u00E7\u00E3o']
+    >;
+    date: Attribute.DateTime;
+    qualificados: Attribute.JSON;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::cron.cron', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::cron.cron', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
 export interface ApiExtractExtract extends Schema.CollectionType {
   collectionName: 'extracts';
   info: {
@@ -1044,6 +1071,35 @@ export interface ApiLaunchLaunch extends Schema.CollectionType {
   };
 }
 
+export interface ApiNotificationNotification extends Schema.CollectionType {
+  collectionName: 'notifications';
+  info: {
+    singularName: 'notification';
+    pluralName: 'notifications';
+    displayName: 'Notification';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    data: Attribute.JSON;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::notification.notification',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::notification.notification',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiOrderOrder extends Schema.CollectionType {
   collectionName: 'orders';
   info: {
@@ -1075,7 +1131,7 @@ export interface ApiOrderOrder extends Schema.CollectionType {
       ]
     >;
     gateway_cobranca: Attribute.JSON;
-    paid: Attribute.Boolean;
+    paid: Attribute.Boolean & Attribute.DefaultTo<false>;
     dataPagamento: Attribute.DateTime;
     modoPagamento: Attribute.Enumeration<['saldo', 'bloqueado', 'pix']>;
     gateway_webhook: Attribute.JSON;
@@ -1583,9 +1639,11 @@ declare module '@strapi/types' {
       'api::balance.balance': ApiBalanceBalance;
       'api::bri.bri': ApiBriBri;
       'api::category.category': ApiCategoryCategory;
+      'api::cron.cron': ApiCronCron;
       'api::extract.extract': ApiExtractExtract;
       'api::graduation.graduation': ApiGraduationGraduation;
       'api::launch.launch': ApiLaunchLaunch;
+      'api::notification.notification': ApiNotificationNotification;
       'api::order.order': ApiOrderOrder;
       'api::plan.plan': ApiPlanPlan;
       'api::product.product': ApiProductProduct;

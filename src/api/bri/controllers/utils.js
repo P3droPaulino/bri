@@ -284,6 +284,7 @@ const handleSubscriptionOrder = async (mode, orderCreated, data, product, userWi
 
   //Qualificar
   console.log("Indo qualificar agora---------------------------------")
+  console.log("ID: " + planAtivacao.id);
   const qualificar = await qualificacaoplan(planAtivacao.id);
 
 
@@ -382,6 +383,9 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
   //console.log("atualizando status do usuário");
   const updatedUser = await updateUserStatus(orderCreated?.user?.id, true);
 
+  console.log("UPDATE USER");
+  console.log(updatedUser);
+
   //console.log("atualizando role");
   const updateAff = await updateRole(orderCreated?.id);
 
@@ -406,7 +410,15 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
         data: planoData
       });
 
-
+      // @ts-ignore
+      if (!updatedUser?.plan_indicador || updatedUser?.plan_indicador === 0) {
+        // Atualiza o usuário, definindo plan_indicador para o ID do plano criado
+        await strapi.entityService.update("plugin::users-permissions.user", updatedUser.id, {
+          data: {
+            plan_indicador: plan?.id
+          }
+        });
+      }
       const attExtrato = await strapi.entityService.update("api::extract.extract", extractId, {
         data: {
           plan: plan.id,
@@ -644,6 +656,9 @@ async function qualificacaoplan(id) {
 
 
   const planOrder = await strapi.entityService.findOne("api::plan.plan", id, { populate: { patrocinador: true, patrocinados: true } });
+  console.log("planOrder");
+  console.log(planOrder);
+  console.log("PASSOU DO PLAN ORDER");
 
   planOrder.patrocinados.forEach(patrocinado => {
     const dataAtivacao = new Date(patrocinado.dataAtivacao);
@@ -652,7 +667,7 @@ async function qualificacaoplan(id) {
     }
   });
 
-
+  console.log("PASSOU DO planOrder.patrocinados.forEach");
   if (countIndicacao >= 5 && !planOrder.qualificado) {
      console.log("-------------------- PLANO QUALIFICADO (" + planOrder.id + ") --------------------");
     const qualificado = await strapi.entityService.update("api::plan.plan", planOrder.id, {
@@ -662,7 +677,7 @@ async function qualificacaoplan(id) {
       },
     });
   }
-
+  console.log("PASSOU DO if (countIndicacao >= 5 && !planOrder.qualificad");
 
   if (planOrder.statusAtivacao) {
     const planPatrocinador = await strapi.entityService.findOne("api::plan.plan", planOrder.patrocinador.id, {
@@ -670,7 +685,7 @@ async function qualificacaoplan(id) {
     });
 
 
-    //console.log("PLAN PATROCINADOR AQUI -------------------------------------------")
+    console.log("PLAN PATROCINADOR AQUI -------------------------------------------")
     //console.log(planPatrocinador);
     const dataAtivacaoPatrocinador = new Date(planPatrocinador.dataAtivacao);
     if (planPatrocinador.statusAtivacao && dataAtivacaoPatrocinador.getMonth() === currentMonth && dataAtivacaoPatrocinador.getFullYear() === currentYear)
@@ -680,7 +695,7 @@ async function qualificacaoplan(id) {
         if (patrocinado.statusAtivacao && dataAtivacao.getMonth() === currentMonth && dataAtivacao.getFullYear() === currentYear) {
           countIndicacaoPatrocinador++;
         } else {
-          //console.log("Patrocinador não atingiu a quantidade de ativos do mês");
+          console.log("Patrocinador não atingiu a quantidade de ativos do mês");
         }
       });
     // Marcar qualificação como verdadeira se houver pelo menos 5 qualificados
@@ -693,10 +708,10 @@ async function qualificacaoplan(id) {
         },
       });
     } else {
-      //console.log("Patrocinador já qualificado ou inativo!");
+      console.log("Patrocinador já qualificado ou inativo!");
     }
   } else {
-    //console.log("Patrocinador não está ativo no mês atual");
+    console.log("Patrocinador não está ativo no mês atual");
   }
 }
 

@@ -1,5 +1,5 @@
 const setTimeZone = "America/Sao_Paulo";
-//const {  cronRunRecorrencia, cronRunFilaUnica } = require("../src/api/dsp/controllers/cron");
+const {  verificarEManipularFilaUnica, verificarEManipularInativacoes } = require("../src/api/cron/controllers/utils.js");
 
 module.exports = {
   // tests: {
@@ -16,10 +16,10 @@ module.exports = {
   recorrencia: {
     task: async ({ strapi }) => {
       console.log('Rodando tarefa de: RECORRENCIA');
-      //await cronRunRecorrencia();
+      await verificarEManipularInativacoes();
       const now = new Date();
     // Imprime a hora atual no console
-    console.log(`Hora atual: ${now.toISOString()}`);
+    //console.log(`Hora atual: ${now.toISOString()}`);
     },
     options: {
       rule: "0 * * * * *", // Executar todos os dias às 0:00
@@ -29,10 +29,10 @@ module.exports = {
   filaUnica: {
     task: async ({ strapi }) => {
       console.log('Rodando tarefa de: FILA ÚNICA');
-      //await cronRunFilaUnica();
+      await verificarEManipularFilaUnica();
     },
     options: {
-      rule: "0 0 0 1 * *", // Executar todo dia 1 de cada mês às 0:00
+      rule: "0 * * * * *", // Executar todo dia 1 de cada mês às 0:00
       tz: setTimeZone,
     },
   },

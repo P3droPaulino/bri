@@ -32,6 +32,7 @@ module.exports = createCoreController('api::extract.extract', ({ strapi }) => ({
     if (filters) {
       for (const field in filters) {
         filterConditions[field] = filters[field];
+        filterConditions[field];
       }
     }
   
@@ -44,8 +45,10 @@ module.exports = createCoreController('api::extract.extract', ({ strapi }) => ({
       start,
       limit: pageSize,
       populate: '*',
+      sort: { createdAt: 'desc' },
     });
   
+
     // Calcula o total de registros para a paginação
     const total = await strapi.entityService.count('api::extract.extract', { filters: filterConditions });
 
