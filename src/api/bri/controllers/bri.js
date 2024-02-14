@@ -983,6 +983,11 @@ async pontosMatriz(ctx) {
 async rateio(ctx) {
   const { dataInicial, dataFinal } = ctx.query;
 
+  console.log("dataInicial");
+  console.log(dataInicial);
+  console.log("dataFinal");
+  console.log(dataFinal);
+
   let filters = { paid: true }; // Filtrar por pedidos pagos
 
   if (dataInicial) {
@@ -1006,8 +1011,8 @@ async rateio(ctx) {
       filters.dataPagamento.$lte = todayEndOfDay;
     }
   }
-  
-
+  console.log("filters");
+  console.log(filters);
   const pedidos = await strapi.entityService.findMany('api::order.order', {
     filters: filters,
     populate:{
