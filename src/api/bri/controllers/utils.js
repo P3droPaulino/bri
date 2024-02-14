@@ -137,17 +137,20 @@ const getRateioBonus = (oobj, key) => {
 * @return { Object }
 */
 const getRateioMatriz = (oobj, key) => {
+
+  const modifiedKey = `level_${key}`;
+
   try {
     const filteredRateios = oobj?.rateios_unilevel?.filter((item) => {
-      return item?.key === key && item?.status === true;
+      return item?.key === modifiedKey && item?.status === true;
     });
 
     return filteredRateios.length > 0
-      ? { key, value: filteredRateios[0].value, status: true }
-      : { key, value: '0', status: false };
+      ? { modifiedKey, value: filteredRateios[0].value, status: true }
+      : { modifiedKey, value: '0', status: false };
   } catch (e) {
     return {
-      key,
+      modifiedKey,
       value: '0',
       status: false,
       error: `Objecto do pedido ${oobj?.id} não tem 'rateios_unilevel' para extração!`,
@@ -277,6 +280,7 @@ const handleSubscriptionOrder = async (mode, orderCreated, data, product, userWi
   if (pontosGraduacao.status) {
     const VME = await atribuirPontosVME(planAtivacao?.id, pontosGraduacao?.value, orderCreated.id);
   }
+
 
   const VMEBonus = await atribuirBonusMatriz(planAtivacao?.id, orderCreated);
 
@@ -622,10 +626,14 @@ async function atribuirBonusMatriz(idPlano, order, planoInicial, idPlanoInicial,
   if (nivelAtual === 1) {
     idEquipe = idPlanoInicial;
   }
-
-
+  console.log(order);
+  console.log(order);
   const bonusMatriz = await getRateioMatriz(order, String(nivelAtual));
+  console.log("bonusMatriz");
+  console.log(bonusMatriz);
 
+  console.log("nivelAtual");
+  console.log(nivelAtual);
   // Chamada à função balanceService.balance
   if (nivelAtual > 0 && bonusMatriz.status) {
     console.log("bonusMatriz");
@@ -738,6 +746,7 @@ async function obterDadosFilaUnica() {
 
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
 
   let montanteFila = 0;
 
@@ -780,6 +789,31 @@ async function obterDadosFilaUnica() {
     }
   }
 
+// Busca os orders com condições específicas
+const orders = await strapi.entityService.findMany("api::order.order", {
+  populate: "*",
+});
+
+// Filtrar apenas os orders no mês atual que não são de subscription ou accession
+const startOfMonth = new Date(currentYear, currentMonth, 1);
+const endOfMonth = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
+
+const filteredOrders = orders.filter(order => {
+  const dataPagamento = new Date(order.dataPagamento);
+  return order.order_type !== 'subscription' && order.order_type !== 'accession' &&
+    dataPagamento >= startOfMonth && dataPagamento <= endOfMonth;
+});
+
+// Somar o valor de fila_unica dos orders filtrados ao montanteFila
+for (const order of filteredOrders) {
+  const object_order = getRateioBonus(order, 'fila_unica');
+  const valueOrder = parseFloat(object_order?.value);
+
+  if (!isNaN(valueOrder)) {
+    montanteFila += valueOrder;
+  }
+}
+  
 
   //total de cotas
   let totalCotas = 0;
