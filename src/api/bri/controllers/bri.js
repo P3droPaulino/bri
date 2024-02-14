@@ -997,19 +997,24 @@ async rateio(ctx) {
     
     filters.dataPagamento = { $gte: new Date(startOfDay) };
   
-    if (dataFinal) {
-      // Cria uma nova data para o final do dia em dataFinal
-      const endOfDay = new Date(dataFinal);
-      endOfDay.setHours(23, 59, 59, 999); // Define para 23:59:59
+    if (dataInicial) {
+      // Considera a data inicial no fuso horário desejado (ex: UTC)
+      const startOfDay = new Date(`${dataInicial}T00:00:00.000Z`);
       
-      filters.dataPagamento.$lte = new Date(endOfDay);
-    } else {
-      // Se dataFinal não estiver definida, usa a data atual para o final do dia
-      const todayEndOfDay = new Date();
-      todayEndOfDay.setHours(23, 59, 59, 999); // Define para 23:59:59
-      
-      filters.dataPagamento.$lte = todayEndOfDay;
-    }
+      filters.dataPagamento = { $gte: startOfDay };
+    
+      if (dataFinal) {
+          // Considera a data final no fuso horário desejado (ex: UTC)
+          const endOfDay = new Date(`${dataFinal}T23:59:59.999Z`);
+          
+          filters.dataPagamento.$lte = endOfDay;
+      } else {
+          // Usa a data atual para o final do dia no fuso horário desejado (ex: UTC)
+          const todayEndOfDay = new Date();
+          todayEndOfDay.setUTCHours(23, 59, 59, 999);
+          
+          filters.dataPagamento.$lte = todayEndOfDay;
+      }
   }
   console.log("filters");
   console.log(filters);
