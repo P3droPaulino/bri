@@ -986,14 +986,27 @@ async rateio(ctx) {
   let filters = { paid: true }; // Filtrar por pedidos pagos
 
   if (dataInicial) {
-    filters.dataPagamento = { $gte: new Date(dataInicial) };
-
+    // Cria uma nova data para o início do dia em dataInicial
+    const startOfDay = new Date(dataInicial);
+    startOfDay.setHours(0, 0, 0, 0); // Define para meia-noite
+    
+    filters.dataPagamento = { $gte: new Date(startOfDay) };
+  
     if (dataFinal) {
-      filters.dataPagamento.$lte = new Date(dataFinal);
+      // Cria uma nova data para o final do dia em dataFinal
+      const endOfDay = new Date(dataFinal);
+      endOfDay.setHours(23, 59, 59, 999); // Define para 23:59:59
+      
+      filters.dataPagamento.$lte = new Date(endOfDay);
     } else {
-      filters.dataPagamento.$lte = new Date(); // Até a data de hoje
+      // Se dataFinal não estiver definida, usa a data atual para o final do dia
+      const todayEndOfDay = new Date();
+      todayEndOfDay.setHours(23, 59, 59, 999); // Define para 23:59:59
+      
+      filters.dataPagamento.$lte = todayEndOfDay;
     }
   }
+  
 
   const pedidos = await strapi.entityService.findMany('api::order.order', {
     filters: filters,
