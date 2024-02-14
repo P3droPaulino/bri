@@ -273,6 +273,10 @@ const handleSubscriptionOrder = async (mode, orderCreated, data, product, userWi
   });
 
 
+    //pagar bônus indicação direta
+      //console.log("Chamando função de pagamento do BONÛS DE INDICAÇÃO")
+      const bonusIndicacao = await paidAcessionBonus(planAtivacao.id, orderCreated)
+
   //lembrar de distribuir pontos apenas se a opção estiver true no produto, alterar o 10 pelo valor.
   const pontosGraduacao = await getRateioBonus(orderCreated, 'pontos_graduacao');
 
@@ -488,6 +492,8 @@ const handleOtherOrderTypes = async (mode, orderCreated, data, product, userWith
   const updateAff = await updateRole(orderCreated?.id);
 
   const pontosGraduacao = await getRateioBonus(orderCreated, 'pontos_graduacao');
+
+  const bonusIndicacao = await paidAcessionBonus(orderCreated.plan.id, orderCreated)
 
   if (pontosGraduacao.status) {
     const VME = await atribuirPontosVME(orderCreated?.plan?.id, pontosGraduacao?.value, orderCreated.id);
