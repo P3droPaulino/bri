@@ -990,13 +990,13 @@ async rateio(ctx) {
   
     if (dataInicial) {
       // Considera a data inicial no fuso horário desejado (ex: UTC)
-      const startOfDay = new Date(`${dataInicial}T00:00:00.000Z`);
+      const startOfDay = new Date(`${dataInicial}T03:00:00.000Z`);
       
       filters.dataPagamento = { $gte: startOfDay };
     
       if (dataFinal) {
           // Considera a data final no fuso horário desejado (ex: UTC)
-          const endOfDay = new Date(`${dataFinal}T23:59:59.999Z`);
+          const endOfDay = new Date(`${dataFinal}T02:59:59.000Z`);
           
           filters.dataPagamento.$lte = endOfDay;
       } else {
