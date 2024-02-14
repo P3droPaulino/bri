@@ -49,12 +49,31 @@ async me(ctx) {
 
     const planosProcessados = plans.map(removerCamposSensiveis);
 
+
+    const adjustedResults = planosProcessados.map(item => ({
+      id: item.id,
+      attributes: {
+          ...item,
+          user: {
+              data: {
+                  id: item.user.id,
+                  attributes: { ...item.user }
+              }
+          }
+      }
+  }));
+
+  // Remover as propriedades não desejadas de cada item
+  adjustedResults.forEach(item => {
+      delete item.attributes.user.id;
+      delete item.attributes.id;
+  });
     //const statusGeral = planosProcessados.some(plano => plano.statusAtivacao);
 
     //planosProcessados.push({ statusGeral: statusGeral });
 
 
-    return planosProcessados;
+    return adjustedResults;
 
   },
 
