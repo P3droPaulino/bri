@@ -990,12 +990,6 @@ async rateio(ctx) {
 
   let filters = { paid: true }; // Filtrar por pedidos pagos
 
-  if (dataInicial) {
-    // Cria uma nova data para o início do dia em dataInicial
-    const startOfDay = new Date(dataInicial);
-    startOfDay.setHours(0, 0, 0, 0); // Define para meia-noite
-    
-    filters.dataPagamento = { $gte: new Date(startOfDay) };
   
     if (dataInicial) {
       // Considera a data inicial no fuso horário desejado (ex: UTC)
@@ -1016,6 +1010,7 @@ async rateio(ctx) {
           filters.dataPagamento.$lte = todayEndOfDay;
       }
   }
+
   console.log("filters");
   console.log(filters);
   const pedidos = await strapi.entityService.findMany('api::order.order', {
