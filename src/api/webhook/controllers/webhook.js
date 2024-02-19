@@ -121,7 +121,7 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
 
       console.log(event);
 
-      if (event == "TRANSFER") {
+      if (event == "TRANSFER_CREATED") {
          console.log("CONFIRMADO - RECEBIMENTO WEBHOOK TRANSFER")
          const returnResponse = [];
          const matchingWithdraws = await strapi.entityService.findMany('api::withdraw.withdraw', {
@@ -133,28 +133,39 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
             populate: "*",
          });
 
-       // Verifica se encontrou saques correspondentes e se o valor é igual
-       if (matchingWithdraws.length > 0) {
-         const matchingWithdraw = matchingWithdraws.find(withdraw => withdraw.value === webhookValue);
-         if (matchingWithdraw) {
-             console.log("Saques correspondentes encontrados, valor compatível.");
-             return { status: "APPROVED" }; // Saque encontrado e valor compatível
+        // Verifica se exatamente um saque correspondente foi encontrado
+        if (matchingWithdraws.length === 1) {
+         const matchingWithdraw = matchingWithdraws[0];
+
+         // Verifica se o valor do saque é igual ao valor da transferência
+         if (matchingWithdraw.value === webhookValue) {
+             console.log("Saques correspondente encontrado, valor compatível.");
+
+             // Atualiza o saque correspondente com os dados do webhook
+             await strapi.entityService.update('api::withdraw.withdraw', matchingWithdraw.id, {
+                 data: {
+                     webhook: data // Salva a resposta do webhook na chave 'webhook'
+                 }
+             });
+
+             console.log(`Saques atualizado com ID: ${matchingWithdraw.id}`);
+             return { status: "APPROVED" }; // Saque encontrado, valor compatível, e atualizado com sucesso
          } else {
-             console.log("Saques correspondentes encontrados, mas o valor é incompatível.");
+             console.log("Saques correspondente encontrado, mas o valor é incompatível.");
              return { 
                  status: "REFUSED", 
                  refuseReason: "Valor da transferência incompatível com o saque registrado." 
              }; // Saque encontrado, mas valor incompatível
          }
      } else {
-         console.log("Nenhum saque correspondente encontrado.");
+         console.log("Número de saques correspondentes inválido.");
          return { 
              status: "REFUSED", 
-             refuseReason: "Transferência não encontrada no nosso banco" 
-         }; // Nenhum saque correspondente encontrado
+             refuseReason: "Número de saques correspondentes deve ser exatamente um." 
+         }; // Número inválido de saques correspondentes encontrados
      }
  }
- 
+
  // Retorna os dados recebidos se o evento não for uma transferência
  return data;
    },
