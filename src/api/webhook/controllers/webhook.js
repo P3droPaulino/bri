@@ -115,7 +115,7 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
       console.log("BODY RECEBIDO", JSON.stringify(data, null, 2));
 
       const returnResponse = [];
-      const event = data?.type;
+      const event = data?.event;
       const payment = data?.transfer?.id;
       const webhookValue = data?.transfer?.value;
 
