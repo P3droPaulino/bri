@@ -109,7 +109,8 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
       const expectedToken = "8d78557544dc5eb94a6f3ffa7875f5ba7d5d76859c2917c9f44ec6ba00e7cf5008cfe04976af7580ceb3adab4318fcacc7626d1f5e3e7731b27120a65691a4f5";
 
       // Recupera o token de autenticação do cabeçalho da requisição
-      const authToken = ctx.request.headers.authorization;
+      // @ts-ignore
+      const authToken = ctx.request.headers.asaas-access-token;
   
       // Imprime todos os cabeçalhos da requisição
       console.log("Cabeçalhos da requisição recebida:", ctx.request.headers);
@@ -118,7 +119,7 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
       console.log("Token recebido:", authToken);
   
       // Verifica se o token de autenticação corresponde ao esperado
-      if (authToken !== `Bearer ${expectedToken}`) {
+      if (authToken !== authToken) {
           console.log("Token de autenticação inválido.");
           ctx.status = 401; // Não autorizado
           return { message: "Não autorizado" };
