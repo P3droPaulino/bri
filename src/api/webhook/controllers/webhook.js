@@ -111,6 +111,12 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
       // Recupera o token de autenticação do cabeçalho da requisição
       const authToken = ctx.request.headers.authorization;
   
+      // Imprime todos os cabeçalhos da requisição
+      console.log("Cabeçalhos da requisição recebida:", ctx.request.headers);
+  
+      // Imprime o token recebido no console para diagnóstico
+      console.log("Token recebido:", authToken);
+  
       // Verifica se o token de autenticação corresponde ao esperado
       if (authToken !== `Bearer ${expectedToken}`) {
           console.log("Token de autenticação inválido.");
