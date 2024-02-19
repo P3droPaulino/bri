@@ -97,5 +97,65 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
       }
       return data;
    },
+   
 
+     /**
+      * Webhook PIX ASAAS PAYMENT
+      * @path /trigger/138b03e982db54637202f75e59c9b745d2b986ae
+      * @documentation <https://developers.celcoin.com.br/docs/modelos-de-webhooks-do-pix>
+      */
+     async webhook_asaas_payment(ctx) {
+      const data = ctx.request.body;
+      const query = ctx.request.query;
+      const d = {};
+
+      d['query'] = query;
+      d['req'] = ctx.request;
+
+      console.log("BODY RECEBIDO", JSON.stringify(data, null, 2));
+
+      const returnResponse = [];
+      const event = data?.type;
+      const payment = data?.transfer?.id;
+      const webhookValue = data?.transfer?.value;
+
+      console.log(event);
+
+      if (event == "TRANSFER") {
+         console.log("CONFIRMADO - RECEBIMENTO WEBHOOK TRANSFER")
+         const returnResponse = [];
+         const matchingWithdraws = = await strapi.entityService.findMany('api::withdraw.withdraw', {
+            filters: {
+               responseCreate: {
+                  $contains: payment
+               }
+            },
+            populate: "*",
+         });
+
+       // Verifica se encontrou saques correspondentes e se o valor é igual
+       if (matchingWithdraws.length > 0) {
+         const matchingWithdraw = matchingWithdraws.find(withdraw => withdraw.value === webhookValue);
+         if (matchingWithdraw) {
+             console.log("Saques correspondentes encontrados, valor compatível.");
+             return { status: "APPROVED" }; // Saque encontrado e valor compatível
+         } else {
+             console.log("Saques correspondentes encontrados, mas o valor é incompatível.");
+             return { 
+                 status: "REFUSED", 
+                 refuseReason: "Valor da transferência incompatível com o saque registrado." 
+             }; // Saque encontrado, mas valor incompatível
+         }
+     } else {
+         console.log("Nenhum saque correspondente encontrado.");
+         return { 
+             status: "REFUSED", 
+             refuseReason: "Transferência não encontrada no nosso banco" 
+         }; // Nenhum saque correspondente encontrado
+     }
+ }
+ 
+ // Retorna os dados recebidos se o evento não for uma transferência
+ return data;
+   },
 }));

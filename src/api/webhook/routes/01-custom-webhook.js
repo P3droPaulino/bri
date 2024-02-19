@@ -9,5 +9,13 @@ module.exports = {
                 description: "Webhook Asaas"
             },
         },
+        {
+            method: 'POST',
+           path: '/trigger/138b03e982db54637202f75e59c9b745d2b986ae',
+           handler: 'webhook.webhook_asaas_payment',
+           config: {
+               description: "Webhook Asaas Payment"
+           },
+       },
     ],
   };

@@ -207,17 +207,22 @@ module.exports = createCoreController('api::withdraw.withdraw', ({ strapi }) => 
             });
 
             const paymentAsaas = paymentResponse.data;
-            
+
             await strapi.entityService.update("api::withdraw.withdraw", body.id, {
                 data: {
                     aprovado: true,
                     responseCreate: paymentAsaas,
                     status: "Criada",
+                    dataPagamento: new Date(),
                 },
             });
 
-        } catch {
+            ctx.send({ message: 'Pagamento realizado e registro atualizado com sucesso.', data: paymentAsaas }, 200);
 
+        } catch {
+            // Tratamento de erros, incluindo falhas na API de pagamentos e na atualização do registro
+            console.error('Erro ao processar pagamento ou atualizar registro:', error);
+            ctx.throw(500, 'Erro ao processar pagamento ou atualizar registro.', { error: error.message });
         }
     }
 
