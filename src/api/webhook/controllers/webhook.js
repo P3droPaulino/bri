@@ -110,7 +110,7 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
 
       // Recupera o token de autenticação do cabeçalho da requisição
       // @ts-ignore
-      const authToken = ctx.request.headers.asaas-access-token;
+      const authToken = ctx.request.headers['asaas-access-token'];
   
       // Imprime todos os cabeçalhos da requisição
       console.log("Cabeçalhos da requisição recebida:", ctx.request.headers);
