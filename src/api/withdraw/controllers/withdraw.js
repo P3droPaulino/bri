@@ -207,16 +207,15 @@ module.exports = createCoreController('api::withdraw.withdraw', ({ strapi }) => 
             });
 
             const paymentAsaas = paymentResponse.data;
-            console.log("resposta paymentResponse");
-            console.log(paymentResponse.data);
+            
+            await strapi.entityService.update("api::withdraw.withdraw", body.id, {
+                data: {
+                    aprovado: true,
+                    responseCreate: paymentAsaas,
+                    status: "Criada",
+                },
+            });
 
-            //console.log("atualizar usuário: ", orderUpdate?.user?.id, "com ID: ", clienteAsaas?.id);
-
-            // const clienteAsaasof = await strapi.entityService.update("plugin::users-permissions.user", orderUpdate?.user?.id, {
-            //     data: {
-            //         clienteCode_asaas: clienteAsaas?.id
-            //     },
-            // });
         } catch {
 
         }

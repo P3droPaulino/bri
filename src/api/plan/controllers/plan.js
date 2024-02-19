@@ -52,7 +52,7 @@ module.exports = createCoreController('api::plan.plan', ({ strapi }) => ({
     const planosProcessados = plans.map(removerCamposSensiveis);
 
     // Calcula o total de registros para a paginação
-    const total = await strapi.entityService.count('api::withdraw.withdraw', { filters: filterConditions });
+    const total = await strapi.entityService.count('api::plan.plan', { filters: filterConditions });
 
 
     // Ajusta os resultados para o formato desejado
