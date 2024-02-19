@@ -22,7 +22,7 @@ module.exports = {
     //console.log(`Hora atual: ${now.toISOString()}`);
     },
     options: {
-      rule: "0 * * * * *", // Executar todos os dias às 0:00
+      rule: "0 0 0 * * *", // Executar todos os dias às 0:00
       tz: setTimeZone,
     },
   },
@@ -32,7 +32,7 @@ module.exports = {
       await verificarEManipularFilaUnica();
     },
     options: {
-      rule: "0 * * * * *", // Executar todo dia 1 de cada mês às 0:00
+      rule: "0 0 0 * * *", // Executar todo dia 1 de cada mês às 0:00
       tz: setTimeZone,
     },
   },

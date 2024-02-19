@@ -124,7 +124,7 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
       if (event == "TRANSFER") {
          console.log("CONFIRMADO - RECEBIMENTO WEBHOOK TRANSFER")
          const returnResponse = [];
-         const matchingWithdraws = = await strapi.entityService.findMany('api::withdraw.withdraw', {
+         const matchingWithdraws = await strapi.entityService.findMany('api::withdraw.withdraw', {
             filters: {
                responseCreate: {
                   $contains: payment
