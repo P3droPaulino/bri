@@ -403,13 +403,13 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
     if (updatedOrder?.paid) {
       console.log("planSponsor");
       console.log(planSponsor);
-      //const vagaDisponivel = await encontrarVagaNaRede(planSponsor);
+      const vagaDisponivel = await encontrarVagaNaRede(planSponsor);
       const planoData = {
         user: userWithBuyer,
         dataAtivacao: new Date().toISOString(),
         statusAtivacao: true,
         patrocinador: planSponsor,
-        //matriz_patrocinador: vagaDisponivel?.id,
+        matriz_patrocinador: vagaDisponivel?.id,
         Vencimento: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
         order_accession: orderCreated.id
       };
