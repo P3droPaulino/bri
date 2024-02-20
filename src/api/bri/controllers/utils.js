@@ -401,6 +401,8 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
   try {
 
     if (updatedOrder?.paid) {
+      console.log("planSponsor");
+      console.log(planSponsor);
       const vagaDisponivel = await encontrarVagaNaRede(planSponsor);
       const planoData = {
         user: userWithBuyer,
@@ -412,8 +414,8 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
         order_accession: orderCreated.id
       };
 
-      //console.log("planoData");
-      //console.log(planoData);
+      console.log("planoData");
+      console.log(planoData);
       const plan = await strapi.entityService.create("api::plan.plan", {
         data: planoData
       });
