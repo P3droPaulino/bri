@@ -187,9 +187,6 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
  }
 
  // Retorna os dados recebidos se o evento não for uma transferência
- return { 
-   "status": "REFUSED", 
-   "refuseReason": "Transferência não encontrada no nosso banco" 
-};
+ return { "status": "APPROVED" };
    },
 }));
