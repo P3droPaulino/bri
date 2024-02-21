@@ -136,12 +136,13 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
 
       const returnResponse = [];
       const event = data?.event;
+      const type = data?.type
       const payment = data?.transfer?.id;
       const webhookValue = data?.transfer?.value;
 
       console.log(event);
 
-      if (event == "TRANSFER_CREATED") {
+      if (event == "TRANSFER_CREATED" || type == "TRANSFER") {
          console.log("CONFIRMADO - RECEBIMENTO WEBHOOK TRANSFER")
          const returnResponse = [];
          const matchingWithdraws = await strapi.entityService.findMany('api::withdraw.withdraw', {
@@ -187,6 +188,6 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
  }
 
  // Retorna os dados recebidos se o evento não for uma transferência
- return { "status": "APPROVED" };
+ return { "Outros Tipos"};
    },
 }));
