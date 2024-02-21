@@ -188,6 +188,6 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
  }
 
  // Retorna os dados recebidos se o evento não for uma transferência
- return { "Outros Tipos"};
+ return "Outros Tipos"
    },
 }));
