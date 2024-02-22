@@ -91,35 +91,30 @@ module.exports = createCoreController('api::plan.plan', ({ strapi }) => ({
 
 async me(ctx) {
     const me = ctx.state.user;
-    const query = ctx.query; //Funcionando
-    const hasFilters = query && query.filters ? true : false;
+    const { filters } = ctx.query;
     // console.log("[hasFilters]", query, hasFilters);
-    const filters = {
-      filters: {
+    const filterConditions = {
         user: {
           id: { $eq: me.id },
         },
-      },
-      populate:
-      {
-        user: true,
-        }
-    };
-    try {
-      if (hasFilters) {
-        const oe = Object.entries(query.filters)
-        for (const a in oe) {
-          const key = oe[a][0];
-          const val = oe[a][1];
-          console.log(key, val);
-          filters.filters[key] = ["true", "false"].includes(val) ? JSON.parse(oe[a][1]) : oe[a][1]
+      };
+
+
+      //filters = filters.slice(0, -1); // Remove o último caractere
+    if (filters) {
+        for (const field in filters) {
+          filterConditions[field] = filters[field];
+          filterConditions[field];
         }
       }
-      // console.log("FILTERS", filters, JSON.stringify(filters, null, 2));
-    } catch (e) {
-      console.log();
-    }
-    const plans = await strapi.entityService.findMany('api::plan.plan', filters);
+
+
+      console.log(filterConditions);
+    const plans = await strapi.entityService.findMany('api::plan.plan', {
+    filters: filterConditions,
+    sort: { createdAt: 'desc' },
+    populate:{ user: true, }
+    });
 
     const planosProcessados = plans.map(removerCamposSensiveis);
 
