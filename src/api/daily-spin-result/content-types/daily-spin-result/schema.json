@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "daily_spin_results",
+  "info": {
+    "singularName": "daily-spin-result",
+    "pluralName": "daily-spin-results",
+    "displayName": "Daily Spin Results",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "date": {
+      "type": "datetime"
+    },
+    "daily_spin_quota": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::daily-spin-quota.daily-spin-quota"
+    },
+    "level": {
+      "type": "integer"
+    },
+    "value": {
+      "type": "integer"
+    }
+  }
+}

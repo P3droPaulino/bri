@@ -14,6 +14,23 @@ export interface AttributesAttributes extends Schema.Component {
   };
 }
 
+export interface AwardAward extends Schema.Component {
+  collectionName: 'components_award_awards';
+  info: {
+    displayName: 'Award';
+  };
+  attributes: {
+    L1: Attribute.Integer;
+    L2: Attribute.Integer;
+    L3: Attribute.Integer;
+    L4: Attribute.Integer;
+    L5: Attribute.Integer;
+    L6: Attribute.Integer;
+    L7: Attribute.Integer;
+    L8: Attribute.Integer;
+  };
+}
+
 export interface ContentContent extends Schema.Component {
   collectionName: 'components_content_contents';
   info: {
@@ -81,6 +98,23 @@ export interface DownloadsDownloads extends Schema.Component {
   };
 }
 
+export interface FactorFactor extends Schema.Component {
+  collectionName: 'components_factor_factors';
+  info: {
+    displayName: 'Factor';
+  };
+  attributes: {
+    L1: Attribute.Integer;
+    L2: Attribute.Integer;
+    L3: Attribute.Integer;
+    L4: Attribute.Integer;
+    L5: Attribute.Integer;
+    L6: Attribute.Integer;
+    L7: Attribute.Integer;
+    L8: Attribute.Integer;
+  };
+}
+
 export interface OptionsOptions extends Schema.Component {
   collectionName: 'components_options_options';
   info: {
@@ -131,21 +165,42 @@ export interface VariationsVariations extends Schema.Component {
   };
 }
 
+export interface WaitWait extends Schema.Component {
+  collectionName: 'components_wait_waits';
+  info: {
+    displayName: 'Wait';
+    description: '';
+  };
+  attributes: {
+    L1: Attribute.Integer;
+    L2: Attribute.Integer;
+    L3: Attribute.Integer;
+    L4: Attribute.Integer;
+    L5: Attribute.Integer;
+    L6: Attribute.Integer;
+    L7: Attribute.Integer;
+    L8: Attribute.Integer;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface Components {
       'attributes.attributes': AttributesAttributes;
+      'award.award': AwardAward;
       'content.content': ContentContent;
       'conversa.conversa': ConversaConversa;
       'cross-sell-ids.cross-sell-ids': CrossSellIdsCrossSellIds;
       'default-attributes.default-attributes': DefaultAttributesDefaultAttributes;
       'dimensions.dimensions': DimensionsDimensions;
       'downloads.downloads': DownloadsDownloads;
+      'factor.factor': FactorFactor;
       'options.options': OptionsOptions;
       'related-ids.related-ids': RelatedIdsRelatedIds;
       'tags.tags': TagsTags;
       'upsell-ids.upsell-ids': UpsellIdsUpsellIds;
       'variations.variations': VariationsVariations;
+      'wait.wait': WaitWait;
     }
   }
 }

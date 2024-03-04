@@ -727,15 +727,15 @@ export interface ApiAccessAccess extends Schema.CollectionType {
     singularName: 'access';
     pluralName: 'accesses';
     displayName: 'Access';
+    description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     data: Attribute.JSON;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::access.access',
       'oneToOne',
@@ -862,15 +862,15 @@ export interface ApiBriBri extends Schema.CollectionType {
     singularName: 'bri';
     pluralName: 'bris';
     displayName: 'BRI';
+    description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     Nome: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::bri.bri', 'oneToOne', 'admin::user'> &
       Attribute.Private;
     updatedBy: Attribute.Relation<'api::bri.bri', 'oneToOne', 'admin::user'> &
@@ -940,6 +940,123 @@ export interface ApiCronCron extends Schema.CollectionType {
   };
 }
 
+export interface ApiDailySpinQuotaDailySpinQuota extends Schema.CollectionType {
+  collectionName: 'daily_spin_quotas';
+  info: {
+    singularName: 'daily-spin-quota';
+    pluralName: 'daily-spin-quotas';
+    displayName: 'Daily Spin Quotas';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    date: Attribute.DateTime;
+    cod: Attribute.String;
+    user: Attribute.Relation<
+      'api::daily-spin-quota.daily-spin-quota',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    order: Attribute.Relation<
+      'api::daily-spin-quota.daily-spin-quota',
+      'oneToOne',
+      'api::order.order'
+    >;
+    level: Attribute.Integer;
+    plan: Attribute.Relation<
+      'api::daily-spin-quota.daily-spin-quota',
+      'oneToOne',
+      'api::plan.plan'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::daily-spin-quota.daily-spin-quota',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::daily-spin-quota.daily-spin-quota',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiDailySpinResultDailySpinResult
+  extends Schema.CollectionType {
+  collectionName: 'daily_spin_results';
+  info: {
+    singularName: 'daily-spin-result';
+    pluralName: 'daily-spin-results';
+    displayName: 'Daily Spin Results';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    date: Attribute.DateTime;
+    daily_spin_quota: Attribute.Relation<
+      'api::daily-spin-result.daily-spin-result',
+      'oneToOne',
+      'api::daily-spin-quota.daily-spin-quota'
+    >;
+    level: Attribute.Integer;
+    value: Attribute.Integer;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::daily-spin-result.daily-spin-result',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::daily-spin-result.daily-spin-result',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiDailySpinSettingDailySpinSetting extends Schema.SingleType {
+  collectionName: 'daily_spin_settings';
+  info: {
+    singularName: 'daily-spin-setting';
+    pluralName: 'daily-spin-settings';
+    displayName: 'Daily Spin Settings';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    Wait: Attribute.Component<'wait.wait'>;
+    Factor: Attribute.Component<'factor.factor'>;
+    Award: Attribute.Component<'award.award'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::daily-spin-setting.daily-spin-setting',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::daily-spin-setting.daily-spin-setting',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiExtractExtract extends Schema.CollectionType {
   collectionName: 'extracts';
   info: {
@@ -966,7 +1083,8 @@ export interface ApiExtractExtract extends Schema.CollectionType {
         'Loja Virtual',
         'Saque',
         'Cr\u00E9dito (adm)',
-        'D\u00E9bito (adm)'
+        'D\u00E9bito (adm)',
+        'Giro Di\u00E1rio'
       ]
     >;
     status: Attribute.Enumeration<['Cr\u00E9dito', 'D\u00E9bito']>;
@@ -1380,7 +1498,8 @@ export interface ApiReportReport extends Schema.CollectionType {
       [
         'Constru\u00E7\u00E3o Fila',
         'Pagamento Fila',
-        'Pagamento Gradua\u00E7\u00E3o'
+        'Pagamento Gradua\u00E7\u00E3o',
+        'Giro Di\u00E1rio'
       ]
     >;
     dados: Attribute.JSON;
@@ -1640,6 +1759,9 @@ declare module '@strapi/types' {
       'api::bri.bri': ApiBriBri;
       'api::category.category': ApiCategoryCategory;
       'api::cron.cron': ApiCronCron;
+      'api::daily-spin-quota.daily-spin-quota': ApiDailySpinQuotaDailySpinQuota;
+      'api::daily-spin-result.daily-spin-result': ApiDailySpinResultDailySpinResult;
+      'api::daily-spin-setting.daily-spin-setting': ApiDailySpinSettingDailySpinSetting;
       'api::extract.extract': ApiExtractExtract;
       'api::graduation.graduation': ApiGraduationGraduation;
       'api::launch.launch': ApiLaunchLaunch;

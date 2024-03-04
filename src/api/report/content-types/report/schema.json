@@ -17,7 +17,8 @@
       "enum": [
         "Construção Fila",
         "Pagamento Fila",
-        "Pagamento Graduação"
+        "Pagamento Graduação",
+        "Giro Diário"
       ]
     },
     "dados": {

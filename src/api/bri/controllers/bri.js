@@ -563,7 +563,7 @@ async meusDiretos(ctx) {
           userMeta.avatarUrl = userMeta.avatar && userMeta.avatar.length > 0 ? baseUrl + userMeta.avatar[0].url : null;
           
           // Aplicar a função para remover campos sensíveis
-          const userInfo = removerCamposSensiveis({ ...patrocinado.user, avatarUrl: userMeta.avatarUrl });
+          const userInfo = removerremoverCamposSensiveis({ ...patrocinado.user, avatarUrl: userMeta.avatarUrl });
           const planoInfo = removerCamposSensiveis(patrocinado);
           const planoPatrocinadorInfo = removerCamposSensiveis(plan);
 

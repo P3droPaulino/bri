@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "daily_spin_quotas",
+  "info": {
+    "singularName": "daily-spin-quota",
+    "pluralName": "daily-spin-quotas",
+    "displayName": "Daily Spin Quotas",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "date": {
+      "type": "datetime"
+    },
+    "cod": {
+      "type": "string"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "order": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::order.order"
+    },
+    "level": {
+      "type": "integer"
+    },
+    "plan": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::plan.plan"
+    }
+  }
+}

@@ -4,10 +4,11 @@
   "info": {
     "singularName": "access",
     "pluralName": "accesses",
-    "displayName": "Access"
+    "displayName": "Access",
+    "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {

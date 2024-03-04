@@ -1,0 +1,33 @@
+{
+  "collectionName": "components_award_awards",
+  "info": {
+    "displayName": "Award"
+  },
+  "options": {},
+  "attributes": {
+    "L1": {
+      "type": "integer"
+    },
+    "L2": {
+      "type": "integer"
+    },
+    "L3": {
+      "type": "integer"
+    },
+    "L4": {
+      "type": "integer"
+    },
+    "L5": {
+      "type": "integer"
+    },
+    "L6": {
+      "type": "integer"
+    },
+    "L7": {
+      "type": "integer"
+    },
+    "L8": {
+      "type": "integer"
+    }
+  }
+}

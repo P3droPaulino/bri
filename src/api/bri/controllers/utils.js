@@ -1,5 +1,5 @@
 const balanceService = require('../../bri/services/balance-service');
-
+const { createQuotas} = require('../../daily-spin-quota/controllers/utils');
 
 /**
  * Verificar se variável está vazia
@@ -277,6 +277,11 @@ const handleSubscriptionOrder = async (mode, orderCreated, data, product, userWi
       //console.log("Chamando função de pagamento do BONÛS DE INDICAÇÃO")
       const bonusIndicacao = await paidAcessionBonus(planAtivacao.id, orderCreated)
 
+      const qtdCotas = await getRateioBonus(orderCreated, 'giro_diario');
+      if (qtdCotas.status) {
+        const cotas = await createQuotas(strapi, orderCreated?.user?.id, planAtivacao?.id, orderCreated.id, qtdCotas?.value);
+      }
+
   //lembrar de distribuir pontos apenas se a opção estiver true no produto, alterar o 10 pelo valor.
   const pontosGraduacao = await getRateioBonus(orderCreated, 'pontos_graduacao');
 
@@ -440,6 +445,11 @@ const handleAccessionOrder = async (mode, orderCreated, data, product, planSpons
       //console.log("Chamando função de pagamento do BONÛS DE INDICAÇÃO")
       const bonusIndicacao = await paidAcessionBonus(plan.id, orderCreated)
 
+      const qtdCotas = await getRateioBonus(orderCreated, 'giro_diario');
+      if (qtdCotas.status) {
+        const cotas = await createQuotas(strapi, orderCreated?.user?.id, plan?.id, orderCreated.id, qtdCotas?.value);
+      }
+
 
       //lembrar de distribuir pontos apenas se a opção estiver true no produto, alterar o 10 pelo valor.
       const pontosGraduacao = await getRateioBonus(orderCreated, 'pontos_graduacao');
@@ -495,7 +505,12 @@ const handleOtherOrderTypes = async (mode, orderCreated, data, product, userWith
 
   const pontosGraduacao = await getRateioBonus(orderCreated, 'pontos_graduacao');
 
-  const bonusIndicacao = await paidAcessionBonus(orderCreated.plan.id, orderCreated)
+  const bonusIndicacao = await paidAcessionBonus(orderCreated.plan.id, orderCreated);
+
+  const qtdCotas = await getRateioBonus(orderCreated, 'giro_diario');
+      if (qtdCotas.status) {
+        const cotas = await createQuotas(strapi, orderCreated?.user?.id, orderCreated?.plan?.id, orderCreated.id, qtdCotas?.value);
+      }
 
   if (pontosGraduacao.status) {
     const VME = await atribuirPontosVME(orderCreated?.plan?.id, pontosGraduacao?.value, orderCreated.id);

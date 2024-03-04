@@ -31,6 +31,8 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
 
       console.log("BODY RECEBIDO", JSON.stringify(data, null, 2));
 
+      const webwookData = data;
+
       const returnResponse = [];
       const event = data?.event;
       const payment = data?.payment?.id;
@@ -48,6 +50,9 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
             },
             populate: "*",
          });
+
+
+      
 
          console.log("ORDER GET - WEBHOOK:", orderGET);
 
@@ -87,6 +92,12 @@ module.exports = createCoreController('api::webhook.webhook', ({ strapi }) => ({
                   const loja = handleOtherOrderTypes("pix", order, data, order?.product, order?.user?.id);
                }
 
+
+               const updatedOrder = await strapi.entityService.update('api::order.order', order.id, {
+                  data: {
+                      gateway_webhook: webwookData
+                  },
+              });
 
 
                console.log("Pedido for:", order.id);

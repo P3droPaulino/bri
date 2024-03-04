@@ -1,0 +1,34 @@
+{
+  "kind": "singleType",
+  "collectionName": "daily_spin_settings",
+  "info": {
+    "singularName": "daily-spin-setting",
+    "pluralName": "daily-spin-settings",
+    "displayName": "Daily Spin Settings",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Wait": {
+      "displayName": "Wait",
+      "type": "component",
+      "repeatable": false,
+      "component": "wait.wait"
+    },
+    "Factor": {
+      "displayName": "Factor",
+      "type": "component",
+      "repeatable": false,
+      "component": "factor.factor"
+    },
+    "Award": {
+      "displayName": "Award",
+      "type": "component",
+      "repeatable": false,
+      "component": "award.award"
+    }
+  }
+}
